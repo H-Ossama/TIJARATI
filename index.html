@@ -4524,6 +4524,8 @@
         const base = aiGetRemoteBaseUrl();
         if (!base) return aiLocalRespond(message);
 
+        const summary = aiComputeSummaryFromState();
+
         try {
           const statusResp = await fetch(`${base}/api/ai/status`, { method: 'GET' });
           if (!statusResp.ok) throw new Error('no-status');
@@ -4533,7 +4535,7 @@
           const resp = await fetch(`${base}/api/ai`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message, lang: state.language || 'darija' })
+            body: JSON.stringify({ message, lang: state.language || 'darija', summary })
           });
           if (!resp.ok) throw new Error('ai-failed');
           const data = await resp.json();
@@ -4545,6 +4547,7 @@
         }
       }
       try {
+        const summary = aiComputeSummaryFromState();
         const statusResp = await fetch('/api/ai/status', { method: 'GET' });
         if (!statusResp.ok) throw new Error('no-status');
         const status = await statusResp.json();
@@ -4553,7 +4556,7 @@
         const resp = await fetch('/api/ai', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message, lang: state.language || 'darija' })
+          body: JSON.stringify({ message, lang: state.language || 'darija', summary })
         });
         if (!resp.ok) throw new Error('ai-failed');
         const data = await resp.json();
@@ -4562,6 +4565,35 @@
         throw new Error('no-reply');
       } catch {
         return aiLocalRespond(message);
+      }
+    }
+
+    function aiComputeSummaryFromState() {
+      try {
+        const txs = Array.isArray(state.transactions) ? state.transactions : [];
+        const totalSales = txs.filter(t => t.type === 'sale').reduce((s, t) => s + (t.amountBase || 0), 0);
+        const totalPurchases = txs.filter(t => t.type === 'purchase').reduce((s, t) => s + (t.amountBase || 0), 0);
+        const netProfit = totalSales - totalPurchases;
+        const pendingDebts = txs.filter(t => t.isCredit && !t.isFullyPaid)
+          .reduce((s, t) => s + Math.max(0, (t.amountBase || 0) - (t.paidAmountBase || 0)), 0);
+
+        const topSaleItems = (() => {
+          const counts = new Map();
+          txs.filter(t => t.type === 'sale').forEach(t => {
+            const name = (t.item || '').toString().trim();
+            if (!name) return;
+            const key = name.toLowerCase();
+            counts.set(key, (counts.get(key) || 0) + (t.quantity || 1));
+          });
+          return Array.from(counts.entries())
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 5)
+            .map(([item, qty]) => ({ item, qty }));
+        })();
+
+        return { totalSales, totalPurchases, netProfit, pendingDebts, topSaleItems };
+      } catch {
+        return { totalSales: 0, totalPurchases: 0, netProfit: 0, pendingDebts: 0, topSaleItems: [] };
       }
     }
 

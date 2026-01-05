@@ -59,6 +59,55 @@ The app will automatically call:
 
 If the URL is not set or is unreachable, the app falls back to the built-in local assistant.
 
+## Deploy the server with Firebase (Hosting + Functions)
+
+Yes — you can deploy the API using Firebase.
+
+This repo is set up so Firebase Functions uses the code in `server/` (see `firebase.json`). Hosting rewrites `/api/*` to the `api` function.
+
+### Steps
+
+1) Install Firebase CLI and login:
+
+```bash
+npm i -g firebase-tools
+firebase login
+```
+
+2) In the repo root, initialize Firebase (choose **Hosting** + **Functions**). When asked for Functions source, use the existing config (it is already set in `firebase.json`).
+
+3) Set your Gemini key securely (recommended):
+
+```bash
+firebase functions:secrets:set GEMINI_API_KEY
+```
+
+4) Deploy:
+
+```bash
+firebase deploy
+```
+
+Or use the Windows script (recommended):
+
+- `powershell -ExecutionPolicy Bypass -File .\deploy_firebase.ps1 -SetGeminiKey`
+
+### Project + region (this repo)
+
+- Firebase project: `tijarati-ec23b` (see `.firebaserc`)
+- Functions region: `europe-west1`
+
+### Use it in EAS builds
+
+Set the mobile env var to your Hosting URL:
+
+- `TIJARATI_AI_SERVER_URL=https://tijarati-ec23b.web.app`
+
+The app will call:
+
+- `https://<your-project>.web.app/api/ai/status`
+- `https://<your-project>.web.app/api/ai`
+
 Notes:
 
 - Debt reminders and “Download/Share” are handled through the native bridge in `mobile/App.js`.
