@@ -2,8 +2,8 @@
   "expo": {
     "name": "TIJARATI",
     "slug": "tijarati",
-    "version": "1.0.1",
-    "orientation": "portrait",
+    "version": "4.0.0",
+    "orientation": "default",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "splash": {
@@ -24,6 +24,7 @@
         "backgroundColor": "#0F766E"
       },
       "package": "com.tijarati",
+      "versionCode": 4,
       "googleServicesFile": "./google-services.json",
       "softwareKeyboardLayoutMode": "pan",
       "permissions": [

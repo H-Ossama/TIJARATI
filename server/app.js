@@ -21,6 +21,15 @@ try {
 
 const db = require('./json-db');
 
+function toLatinDigits(input) {
+  const s = String(input ?? '');
+  // Arabic-Indic: \u0660-\u0669 (٠١٢٣٤٥٦٧٨٩)
+  // Eastern Arabic-Indic: \u06F0-\u06F9 (۰۱۲۳۴۵۶۷۸۹)
+  return s
+    .replace(/[\u0660-\u0669]/g, (d) => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)))
+    .replace(/[\u06F0-\u06F9]/g, (d) => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d)));
+}
+
 function createApp() {
   const app = express();
 
@@ -66,19 +75,6 @@ function createApp() {
       const message = (req.body?.message || '').toString().trim();
       const lang = (req.body?.lang || 'english').toString();
       if (!message) return res.status(400).json({ error: 'Missing message' });
-
-      // Hard guard: refuse clearly off-topic questions.
-      const q = message.toLowerCase();
-      const offTopic = ['weather', 'football', 'movie', 'music', 'news', 'politics', 'code', 'programming'];
-      if (offTopic.some(k => q.includes(k))) {
-        const refuse = {
-          darija: 'نقدر نجاوب غير على بياناتك داخل Tijarati.',
-          arabic: 'يمكنني الإجابة فقط عن بياناتك داخل Tijarati.',
-          french: 'Je réponds uniquement sur vos données dans Tijarati.',
-          english: 'I can only answer about your Tijarati data.'
-        };
-        return res.json({ reply: refuse[lang] || refuse.english });
-      }
 
       // Summary can come from the client (mobile/web offline bundle) so AI uses on-device data.
       // If not provided, fall back to server-side stored transactions.
@@ -127,7 +123,20 @@ function createApp() {
         english: 'English'
       };
 
-      const system = `You are Tijarati's assistant. RULES:\n- Answer ONLY using the provided app data summary.\n- If the user asks anything unrelated to the data, refuse briefly.\n- Keep responses short (max 2-3 sentences).\n- Use the user's language: ${langMap[lang] || 'English'}.\n- Prefer clear numbers and actionable tips.`;
+      const system = `You are Tijarati's assistant — friendly, practical, and proactive.
+
+    You receive:
+    1) DATA SUMMARY (JSON) from the user's bookkeeping app
+    2) USER QUESTION
+
+    Guidelines:
+    - Be helpful. Use the data summary when relevant, but you may also answer general questions.
+    - If information is missing, ask 1-3 precise follow-up questions.
+    - For business/investing questions, provide balanced advice, trade-offs, and 3-6 concrete next steps.
+    - Investment guidance must be general education (not professional financial advice). Do not guarantee outcomes.
+    - Keep it concise but not overly short (up to ~10 short sentences or 4-8 bullets).
+    - Use the user's language: ${langMap[lang] || 'English'}.
+    - IMPORTANT: Use Western/Latin digits (0-9) for ALL numbers.`;
 
       const body = {
         contents: [
@@ -141,8 +150,8 @@ function createApp() {
           }
         ],
         generationConfig: {
-          temperature: 0.2,
-          maxOutputTokens: 160
+          temperature: 0.5,
+          maxOutputTokens: 512
         }
       };
 
@@ -161,7 +170,7 @@ function createApp() {
       const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
       if (!reply) return res.status(500).json({ error: 'No reply from model' });
 
-      res.json({ reply });
+      res.json({ reply: toLatinDigits(reply) });
     } catch (error) {
       console.error('AI Error:', error);
       res.status(500).json({ error: error.message || 'AI error' });

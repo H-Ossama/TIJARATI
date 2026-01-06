@@ -59,6 +59,21 @@ The app will automatically call:
 
 If the URL is not set or is unreachable, the app falls back to the built-in local assistant.
 
+### Option B: No backend (direct Gemini from the app)
+
+The app can call Gemini directly from the native layer (no server, no CORS issues). This works in EAS builds.
+
+Important security note: shipping an API key inside a client app is **not secure** (it can be extracted). If you need a “perfect” production setup, prefer the backend approach.
+
+To enable direct Gemini:
+
+- Set `TIJARATI_GEMINI_API_KEY` (and optionally `TIJARATI_GEMINI_MODEL`, default `gemini-2.5-flash`) in EAS build env.
+
+When `TIJARATI_AI_SERVER_URL` is not set, the app will:
+
+- Use native Gemini if the key is configured
+- Otherwise fall back to the built-in local assistant
+
 ## Deploy the server with Firebase (Hosting + Functions)
 
 Yes — you can deploy the API using Firebase.
@@ -91,6 +106,14 @@ firebase deploy
 Or use the Windows script (recommended):
 
 - `powershell -ExecutionPolicy Bypass -File .\deploy_firebase.ps1 -SetGeminiKey`
+
+Or double-click / run the batch wrapper:
+
+- `deploy_firebase.bat -SetGeminiKey`
+
+Note: Deploying Firebase Functions typically requires upgrading the Firebase project to the **Blaze** plan (billing enabled). If you only want to deploy Hosting (no API), run:
+
+- `powershell -ExecutionPolicy Bypass -File .\deploy_firebase.ps1 -HostingOnly`
 
 ### Project + region (this repo)
 

@@ -6,7 +6,7 @@
     "preview": {
       "distribution": "internal",
       "env": {
-        "TIJARATI_AI_SERVER_URL": ""
+        "TIJARATI_GEMINI_MODEL": "gemini-2.5-flash"
       },
       "android": {
         "buildType": "apk"
@@ -14,7 +14,7 @@
     },
     "production": {
       "env": {
-        "TIJARATI_AI_SERVER_URL": ""
+        "TIJARATI_GEMINI_MODEL": "gemini-2.5-flash"
       },
       "android": {
         "buildType": "app-bundle"

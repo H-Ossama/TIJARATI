@@ -75,6 +75,200 @@
       font-family: var(--font-latin);
     }
 
+    /* ==========================
+       AI screen (Gemini-like)
+       ========================== */
+    #ai-screen {
+      background:
+        radial-gradient(900px 420px at 50% -140px, color-mix(in srgb, #6366f1 18%, transparent), transparent 60%),
+        radial-gradient(900px 420px at 50% 0%, color-mix(in srgb, var(--primary-2) 10%, transparent), transparent 60%),
+        var(--bg);
+      height: 100dvh;
+    }
+
+    .ai-topbar {
+      background: color-mix(in srgb, var(--bg) 70%, transparent);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid color-mix(in srgb, var(--border) 65%, transparent);
+    }
+
+    .ai-icon-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: color-mix(in srgb, var(--surface) 62%, transparent);
+      border: 1px solid color-mix(in srgb, var(--border) 75%, transparent);
+    }
+
+    .ai-avatar-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid color-mix(in srgb, #6366f1 28%, var(--border));
+      background: linear-gradient(135deg, color-mix(in srgb, #6366f1 25%, var(--surface)), color-mix(in srgb, #4f46e5 18%, var(--surface)));
+      box-shadow: 0 18px 55px rgba(99,102,241,0.18);
+      color: var(--fg);
+      font-weight: 900;
+    }
+
+    .ai-hero {
+      padding-top: 18px;
+      padding-bottom: 8px;
+    }
+
+    .ai-hero-hi {
+      font-size: 18px;
+      font-weight: 800;
+      color: color-mix(in srgb, var(--fg) 70%, var(--muted));
+      margin-bottom: 4px;
+    }
+
+    .ai-hero-title {
+      font-size: 40px;
+      line-height: 1.08;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      color: var(--fg);
+      margin-bottom: 14px;
+    }
+
+    .ai-status {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    .ai-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 999px;
+      border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+      background: color-mix(in srgb, var(--surface) 70%, transparent);
+      font-weight: 900;
+      font-size: 14px;
+      color: var(--fg);
+    }
+
+    .ai-chip strong {
+      font-weight: 900;
+    }
+
+    .ai-bubble {
+      border-radius: 22px;
+      padding: 12px 14px;
+      border: 1px solid color-mix(in srgb, var(--border) 75%, transparent);
+      box-shadow: 0 12px 32px rgba(2, 6, 23, 0.07);
+    }
+
+    .ai-bubble.user {
+      background: linear-gradient(135deg, color-mix(in srgb, #4f46e5 18%, var(--surface)), color-mix(in srgb, #6366f1 14%, var(--surface)));
+      border-color: color-mix(in srgb, #6366f1 20%, var(--border));
+    }
+
+    .ai-bubble.assistant {
+      background: color-mix(in srgb, var(--surface) 82%, transparent);
+    }
+
+    .ai-inputbar {
+      background: color-mix(in srgb, var(--surface) 78%, transparent);
+      border: 1px solid color-mix(in srgb, #6366f1 22%, var(--border));
+      box-shadow: 0 0 0 1px color-mix(in srgb, #6366f1 20%, transparent), 0 16px 50px rgba(99,102,241,0.18);
+      align-items: flex-end;
+    }
+
+    .ai-chat-textarea {
+      width: 100%;
+      resize: none;
+      border-color: transparent !important;
+      background: transparent !important;
+      box-shadow: none !important;
+      padding-top: 10px;
+      padding-bottom: 10px;
+      line-height: 1.35;
+      min-height: 44px;
+      max-height: 160px;
+      overflow-y: auto;
+    }
+
+    #ai-send-btn {
+      flex: 0 0 auto;
+      align-self: flex-end;
+      height: 44px;
+      min-height: 44px;
+      max-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
+      white-space: nowrap;
+    }
+
+    .ai-typing {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      height: 18px;
+    }
+
+    .ai-typing .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--muted) 70%, var(--fg));
+      opacity: 0.45;
+      animation: ai-dot 1.1s infinite ease-in-out;
+    }
+
+    .ai-typing .dot:nth-child(2) { animation-delay: 0.14s; }
+    .ai-typing .dot:nth-child(3) { animation-delay: 0.28s; }
+
+    @keyframes ai-dot {
+      0%, 80%, 100% { transform: translateY(0); opacity: 0.35; }
+      40% { transform: translateY(-4px); opacity: 0.9; }
+    }
+
+    #ai-history {
+      opacity: 0;
+      transition: opacity 180ms ease;
+    }
+
+    #ai-history.ai-history-open {
+      opacity: 1;
+    }
+
+    #ai-history .ai-history-panel {
+      transition: transform 220ms ease;
+      will-change: transform;
+    }
+
+    html[dir="ltr"] #ai-history .ai-history-panel {
+      left: 0;
+      right: auto;
+      border-radius: 0 26px 26px 0;
+      transform: translateX(-18px);
+    }
+
+    html[dir="rtl"] #ai-history .ai-history-panel {
+      right: 0;
+      left: auto;
+      border-radius: 26px 0 0 26px;
+      transform: translateX(18px);
+    }
+
+    #ai-history.ai-history-open .ai-history-panel {
+      transform: translateX(0);
+    }
+
     .screen {
       display: none;
       opacity: 0;
@@ -104,6 +298,90 @@
       border: 1px solid var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow-soft);
+    }
+
+    /* Settings helpers */
+    .settings-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .settings-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .settings-card-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .settings-card-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      flex: 0 0 auto;
+    }
+
+    .settings-divider {
+      height: 1px;
+      width: 100%;
+      background: color-mix(in srgb, var(--border) 80%, transparent);
+      margin-top: 12px;
+      margin-bottom: 12px;
+    }
+
+    /* Full-screen PIN setup */
+    .pin-dots {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .pin-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+    }
+
+    .pin-dot.filled {
+      background: var(--primary-2);
+      border-color: color-mix(in srgb, var(--primary-2) 35%, var(--border));
+    }
+
+    .pin-key {
+      height: 52px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      font-weight: 900;
+      font-size: 18px;
+      color: var(--fg);
+    }
+
+    .pin-key.secondary {
+      background: var(--surface-2);
+      font-size: 16px;
+    }
+
+    .pin-key.ok {
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      border: 1px solid color-mix(in srgb, var(--primary-2) 28%, transparent);
+      color: #fff;
+      font-size: 14px;
+      letter-spacing: 0.5px;
     }
 
     .chip {
@@ -234,12 +512,53 @@
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     }
 
-    /* Landscape support (tablet/phone) */
-    @media (orientation: landscape) and (min-width: 700px) {
+    /* Landscape support (tablet/phone)
+       The app is optimized for portrait first; in landscape we:
+       - remove the narrow max-width shell
+       - reduce reserved bottom space (short height)
+       - shrink the bottom nav for phones
+       - optionally switch to a side rail on larger tablets
+    */
+    @media (orientation: landscape) {
       #app {
         max-width: 100% !important;
       }
 
+      /* Phone landscape: less wasted vertical space */
+      .safe-bottom {
+        padding-bottom: calc(env(safe-area-inset-bottom) + 70px);
+      }
+
+      #bottom-nav {
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+        padding-top: 6px !important;
+        padding-bottom: calc(env(safe-area-inset-bottom) + 6px) !important;
+      }
+
+      #bottom-nav .nav-item {
+        padding-top: 6px !important;
+        padding-bottom: 6px !important;
+      }
+
+      #bottom-nav .nav-item i {
+        width: 22px !important;
+        height: 22px !important;
+      }
+
+      #bottom-nav [aria-label="Add"] {
+        width: 48px !important;
+        height: 48px !important;
+        border-radius: 18px !important;
+      }
+
+      #bottom-nav [aria-label="Add"] i {
+        width: 24px !important;
+        height: 24px !important;
+      }
+    }
+
+    @media (orientation: landscape) and (min-width: 700px) {
       #home-screen > header {
         display: grid;
         grid-template-columns: 1.15fr 0.85fr;
@@ -251,6 +570,61 @@
       #debt-details-modal > div,
       #transaction-details-modal > div {
         max-width: 860px;
+      }
+    }
+
+    /* Tablet landscape: side navigation rail */
+    @media (orientation: landscape) and (min-width: 1024px) {
+      /* Move content away from the rail */
+      #main {
+        padding-right: 96px;
+      }
+
+      html[dir="ltr"] #main {
+        padding-right: 0;
+        padding-left: 96px;
+      }
+
+      /* Bottom nav becomes a right rail in RTL */
+      #bottom-nav {
+        top: 0 !important;
+        bottom: 0 !important;
+        left: auto !important;
+        right: 0 !important;
+        width: 96px;
+        border-top: 0 !important;
+        border-left: 1px solid color-mix(in srgb, var(--border) 75%, transparent);
+        padding: calc(env(safe-area-inset-top) + 12px) 10px calc(env(safe-area-inset-bottom) + 12px) !important;
+      }
+
+      html[dir="ltr"] #bottom-nav {
+        left: 0 !important;
+        right: auto !important;
+        border-left: 0;
+        border-right: 1px solid color-mix(in srgb, var(--border) 75%, transparent);
+      }
+
+      /* In rail mode, we don't need extra bottom padding */
+      .safe-bottom {
+        padding-bottom: env(safe-area-inset-bottom);
+      }
+
+      #bottom-nav > div {
+        display: flex !important;
+        flex-direction: column;
+        gap: 12px;
+        height: 100%;
+        align-items: stretch;
+        justify-content: flex-start;
+      }
+
+      #bottom-nav > div > div {
+        justify-content: stretch;
+      }
+
+      #bottom-nav .nav-item {
+        width: 100%;
+        border-radius: 16px;
       }
     }
   </style>
@@ -297,7 +671,7 @@
               <div class="mt-1 flex items-center gap-2">
                 <h1 class="text-2xl font-black tracking-tight" data-i18n="appName">تجارتي</h1>
                 <span class="px-2 py-0.5 rounded-full text-[11px] font-extrabold"
-                  style="background: color-mix(in srgb, var(--primary) 12%, transparent); border: 1px solid color-mix(in srgb, var(--primary) 20%, var(--border)); color: var(--primary-2);">v3</span>
+                  style="background: color-mix(in srgb, var(--primary) 12%, transparent); border: 1px solid color-mix(in srgb, var(--primary) 20%, var(--border)); color: var(--primary-2);">v4</span>
               </div>
             </div>
 
@@ -629,30 +1003,33 @@
 
       <!-- AI -->
       <section id="ai-screen" class="screen flex-col h-full overflow-hidden">
-        <header class="px-5 pt-5 pb-4 sticky top-0 z-10 glass">
-          <div class="relative h-10">
-            <button onclick="goBack()" class="w-10 h-10 rounded-2xl flex items-center justify-center absolute left-0 top-0"
-              style="background: var(--surface-2); border: 1px solid var(--border);" aria-label="Back">
+        <header class="px-5 pt-5 pb-4 sticky top-0 z-10 ai-topbar">
+          <div class="h-10 flex items-center justify-between">
+            <button onclick="handleBack()" class="ai-icon-btn" aria-label="Back">
               <i data-lucide="arrow-right" class="w-5 h-5 rtl:rotate-180"></i>
             </button>
 
-            <div class="absolute inset-0 flex items-center justify-center">
-              <div class="text-lg font-black" data-i18n="ai">الذكاء الاصطناعي</div>
-            </div>
+            <div class="text-base font-black" data-i18n="ai">الذكاء الاصطناعي</div>
 
-            <button onclick="openAiHistory()" class="w-10 h-10 rounded-2xl flex items-center justify-center absolute right-0 top-0"
-              style="background: var(--surface-2); border: 1px solid var(--border);" aria-label="Menu">
-              <i data-lucide="menu" class="w-5 h-5"></i>
+            <button onclick="openAiHistory()" class="ai-avatar-btn" aria-label="Chats">
+              <span id="ai-avatar-initial">A</span>
             </button>
           </div>
         </header>
 
         <div class="flex-1 overflow-hidden flex flex-col">
-          <div class="px-5 pt-4 pb-3">
-            <div id="ai-chat-status" class="text-[11px] font-bold" style="color: var(--muted);"></div>
-          </div>
-
           <div class="flex-1 overflow-y-auto px-5 pb-4">
+            <div id="ai-hero" class="ai-hero"></div>
+            <div id="ai-chat-status" class="ai-status"></div>
+
+            <div id="ai-shortcuts" class="mb-3 hidden">
+              <div class="flex flex-col gap-3">
+                <button id="ai-ex-1" class="ai-chip w-full justify-between"></button>
+                <button id="ai-ex-2" class="ai-chip w-full justify-between"></button>
+                <button id="ai-ex-3" class="ai-chip w-full justify-between"></button>
+              </div>
+            </div>
+
             <div id="ai-plan-card" class="card p-4 hidden mb-4">
               <div class="flex items-center justify-between">
                 <div>
@@ -665,7 +1042,15 @@
                 </button>
               </div>
 
-              <pre id="ai-plan-json" class="mt-3 text-xs font-bold p-3 rounded-2xl overflow-x-auto"
+              <div class="mt-3 flex items-center justify-between gap-2">
+                <div class="text-[11px] font-extrabold" style="color: var(--muted);" data-i18n="aiApprovalHint">راجع الخطة ثم اضغط "تطبيق".</div>
+                <button id="ai-plan-toggle" onclick="aiTogglePlanJson()" class="btn px-3 py-2"
+                  style="background: var(--surface-2); border: 1px solid var(--border); color: var(--fg);">
+                  <span class="text-xs font-black" data-i18n="aiShowJson">Show JSON</span>
+                </button>
+              </div>
+
+              <pre id="ai-plan-json" class="mt-2 text-xs font-bold p-3 rounded-2xl overflow-x-auto hidden"
                 style="background: color-mix(in srgb, var(--surface) 88%, transparent); border: 1px solid var(--border); white-space: pre;"></pre>
 
               <button onclick="aiApplyPlan()" class="btn w-full mt-3 py-3 text-white"
@@ -678,20 +1063,12 @@
           </div>
 
           <div class="px-5 pt-2 pb-0" style="position: sticky; bottom: 0; background: color-mix(in srgb, var(--bg) 78%, transparent); backdrop-filter: blur(16px); border-top: 1px solid color-mix(in srgb, var(--border) 75%, transparent); padding-bottom: calc(env(safe-area-inset-bottom) + 18px);">
-            <div id="ai-shortcuts" class="mb-2 hidden">
-              <div class="flex flex-wrap gap-2">
-                <button id="ai-ex-1" class="btn px-3 py-2 rounded-2xl text-xs font-black"
-                  style="background: var(--surface-2); border: 1px solid var(--border);"></button>
-                <button id="ai-ex-2" class="btn px-3 py-2 rounded-2xl text-xs font-black"
-                  style="background: var(--surface-2); border: 1px solid var(--border);"></button>
-                <button id="ai-ex-3" class="btn px-3 py-2 rounded-2xl text-xs font-black"
-                  style="background: color-mix(in srgb, #4f46e5 10%, var(--surface)); border: 1px solid color-mix(in srgb, #4f46e5 18%, var(--border)); color: color-mix(in srgb, #4f46e5 92%, var(--fg));"></button>
-              </div>
-            </div>
-
-            <div class="flex gap-2 p-2 rounded-3xl" style="background: color-mix(in srgb, var(--surface) 82%, transparent); border: 1px solid color-mix(in srgb, #6366f1 22%, var(--border)); box-shadow: 0 0 0 1px color-mix(in srgb, #6366f1 25%, transparent), 0 16px 50px rgba(99,102,241,0.18), 0 0 18px rgba(99,102,241,0.20);">
-              <input id="ai-chat-input" type="text" class="input" placeholder="..." onkeydown="if(event.key==='Enter'){sendAiChat();}" style="border-color: transparent; background: transparent; box-shadow: none;" />
-              <button onclick="sendAiChat()" class="btn px-5 py-3 text-white" style="background: linear-gradient(135deg, #4f46e5, #6366f1);">
+            <div class="ai-inputbar flex gap-2 p-2 rounded-3xl">
+              <textarea id="ai-chat-input" rows="1" class="input ai-chat-textarea" placeholder="..."
+                oninput="aiAutosizeAiInput(this)"
+                onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAiChat();}"
+                style="padding-left: 14px; padding-right: 14px;"></textarea>
+              <button id="ai-send-btn" onclick="sendAiChat()" class="btn px-5 py-3 text-white" style="background: linear-gradient(135deg, #4f46e5, #6366f1);">
                 <span class="text-sm font-black" data-i18n="send">إرسال</span>
               </button>
             </div>
@@ -703,8 +1080,8 @@
       <div id="ai-history" class="fixed inset-0 z-[95] hidden"
         style="background: rgba(0,0,0,0.45); backdrop-filter: blur(8px);">
         <button onclick="closeAiHistory()" class="absolute inset-0" aria-label="Close overlay" style="background: transparent; z-index: 0;"></button>
-        <div class="absolute inset-y-0 left-0 w-[88%] max-w-sm card p-4"
-          style="border-radius: 0 26px 26px 0; height: 100%; overflow: hidden; z-index: 1;">
+        <div class="ai-history-panel absolute inset-y-0 w-[88%] max-w-sm card p-4"
+          style="height: 100%; overflow: hidden; z-index: 1;">
           <div class="flex items-center justify-between">
             <div>
               <div class="text-base font-black" data-i18n="aiHistory">Chat history</div>
@@ -752,209 +1129,236 @@
         </header>
 
         <div class="px-5 pt-4 pb-10 safe-bottom overflow-y-auto">
-          <div class="card p-4">
-            <div class="flex items-center justify-between">
-              <div>
-                <div class="text-sm font-black" data-i18n="appearance">المظهر</div>
-                <div class="text-xs font-bold" style="color: var(--muted);" data-i18n="appearanceHint">Light / Dark
+          <div class="settings-list">
+            <div class="card p-4">
+              <div class="settings-card-head">
+                <div class="settings-card-left">
+                  <div class="settings-card-icon">
+                    <i data-lucide="palette" class="w-5 h-5" style="color: var(--muted);"></i>
+                  </div>
+                  <div style="min-width: 0;">
+                    <div class="text-sm font-black" data-i18n="appearance">المظهر</div>
+                    <div class="text-xs font-bold" style="color: var(--muted);" data-i18n="appearanceHint">Light / Dark</div>
+                  </div>
+                </div>
+
+                <button id="settings-theme" class="btn px-4 py-2 rounded-2xl"
+                  style="background: var(--surface-2); border: 1px solid var(--border);">
+                  <span id="settings-theme-label" class="text-sm font-black">Dark</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="card p-4">
+              <div class="settings-card-head">
+                <div class="settings-card-left">
+                  <div class="settings-card-icon">
+                    <i data-lucide="languages" class="w-5 h-5" style="color: var(--muted);"></i>
+                  </div>
+                  <div style="min-width: 0;">
+                    <div class="text-sm font-black" data-i18n="language">اللغة</div>
+                    <div class="text-xs font-bold" style="color: var(--muted);" data-i18n="languageHint">اختيار لغة الواجهة</div>
+                  </div>
                 </div>
               </div>
-              <button id="settings-theme" class="btn px-4 py-2 rounded-2xl"
-                style="background: var(--surface-2); border: 1px solid var(--border);">
-                <span id="settings-theme-label" class="text-sm font-black">Dark</span>
-              </button>
-            </div>
-          </div>
 
-          <div class="card p-4 mt-4">
-            <div class="flex items-center justify-between">
-              <div>
-                <div class="text-sm font-black" data-i18n="language">اللغة</div>
-                <div class="text-xs font-bold" style="color: var(--muted);" data-i18n="languageHint">اختيار لغة الواجهة
+              <div class="settings-divider"></div>
+
+              <div class="grid grid-cols-1 gap-2">
+                <button onclick="setLanguage('darija')" class="lang-btn btn py-3"
+                  style="background: var(--surface-2); border: 1px solid var(--border);" data-lang="darija">
+                  <div class="flex items-center justify-between">
+                    <span>🇲🇦 الدارجة</span>
+                    <i data-lucide="chevron-right" class="w-4 h-4 rtl:rotate-180" style="color: var(--muted);"></i>
+                  </div>
+                </button>
+                <button onclick="setLanguage('arabic')" class="lang-btn btn py-3"
+                  style="background: var(--surface-2); border: 1px solid var(--border);" data-lang="arabic">
+                  <div class="flex items-center justify-between">
+                    <span>🇸🇦 العربية</span>
+                    <i data-lucide="chevron-right" class="w-4 h-4 rtl:rotate-180" style="color: var(--muted);"></i>
+                  </div>
+                </button>
+                <button onclick="setLanguage('french')" class="lang-btn btn py-3 font-latin"
+                  style="background: var(--surface-2); border: 1px solid var(--border);" data-lang="french">
+                  <div class="flex items-center justify-between">
+                    <span>🇫🇷 Français</span>
+                    <i data-lucide="chevron-right" class="w-4 h-4 rtl:rotate-180" style="color: var(--muted);"></i>
+                  </div>
+                </button>
+                <button onclick="setLanguage('english')" class="lang-btn btn py-3 font-latin"
+                  style="background: var(--surface-2); border: 1px solid var(--border);" data-lang="english">
+                  <div class="flex items-center justify-between">
+                    <span>🇬🇧 English</span>
+                    <i data-lucide="chevron-right" class="w-4 h-4 rtl:rotate-180" style="color: var(--muted);"></i>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            <div class="card p-4">
+              <div class="settings-card-head">
+                <div class="settings-card-left">
+                  <div class="settings-card-icon">
+                    <i data-lucide="coins" class="w-5 h-5" style="color: var(--muted);"></i>
+                  </div>
+                  <div style="min-width: 0;">
+                    <div class="text-sm font-black" data-i18n="currency">العملة</div>
+                    <div class="text-xs font-bold" style="color: var(--muted);" data-i18n="currencyHint">التحويل يتم تلقائياً</div>
+                  </div>
                 </div>
               </div>
-              <i data-lucide="languages" class="w-5 h-5" style="color: var(--muted);"></i>
-            </div>
 
-            <div class="mt-3 grid grid-cols-2 gap-2">
-              <button onclick="setLanguage('darija')" class="lang-btn btn py-3"
-                style="background: var(--surface-2); border: 1px solid var(--border);" data-lang="darija">🇲🇦
-                الدارجة</button>
-              <button onclick="setLanguage('arabic')" class="lang-btn btn py-3"
-                style="background: var(--surface-2); border: 1px solid var(--border);" data-lang="arabic">🇸🇦
-                العربية</button>
-              <button onclick="setLanguage('french')" class="lang-btn btn py-3 font-latin"
-                style="background: var(--surface-2); border: 1px solid var(--border);" data-lang="french">🇫🇷
-                Français</button>
-              <button onclick="setLanguage('english')" class="lang-btn btn py-3 font-latin"
-                style="background: var(--surface-2); border: 1px solid var(--border);" data-lang="english">🇬🇧
-                English</button>
-            </div>
-          </div>
+              <div class="settings-divider"></div>
 
-          <div class="card p-4 mt-4">
-            <div class="flex items-center justify-between">
-              <div>
-                <div class="text-sm font-black" data-i18n="currency">العملة</div>
-                <div class="text-xs font-bold" style="color: var(--muted);" data-i18n="currencyHint">التحويل يتم
-                  تلقائياً</div>
+              <div class="grid grid-cols-3 gap-2">
+                <button onclick="setCurrency('MAD')" class="curr-btn btn py-3 font-black"
+                  style="background: var(--surface-2); border: 1px solid var(--border);" data-curr="MAD">MAD</button>
+                <button onclick="setCurrency('EUR')" class="curr-btn btn py-3 font-black font-latin"
+                  style="background: var(--surface-2); border: 1px solid var(--border);" data-curr="EUR">EUR</button>
+                <button onclick="setCurrency('USD')" class="curr-btn btn py-3 font-black font-latin"
+                  style="background: var(--surface-2); border: 1px solid var(--border);" data-curr="USD">USD</button>
               </div>
-              <i data-lucide="coins" class="w-5 h-5" style="color: var(--muted);"></i>
             </div>
-            <div class="mt-3 grid grid-cols-3 gap-2">
-              <button onclick="setCurrency('MAD')" class="curr-btn btn py-3 font-black"
-                style="background: var(--surface-2); border: 1px solid var(--border);" data-curr="MAD">MAD</button>
-              <button onclick="setCurrency('EUR')" class="curr-btn btn py-3 font-black font-latin"
-                style="background: var(--surface-2); border: 1px solid var(--border);" data-curr="EUR">EUR</button>
-              <button onclick="setCurrency('USD')" class="curr-btn btn py-3 font-black font-latin"
-                style="background: var(--surface-2); border: 1px solid var(--border);" data-curr="USD">USD</button>
-            </div>
-          </div>
 
-          <div class="card p-4 mt-4">
-            <div class="flex items-center justify-between">
-              <div>
-                <div class="text-sm font-black" data-i18n="data">البيانات</div>
-                <div class="text-xs font-bold" style="color: var(--muted);" data-i18n="dataHint">تصدير/استيراد أو مسح
+            <div id="settings-ai-card" class="card p-4 hidden">
+              <div class="settings-card-head">
+                <div class="settings-card-left">
+                  <div class="settings-card-icon">
+                    <i data-lucide="sparkles" class="w-5 h-5" style="color: var(--muted);"></i>
+                  </div>
+                  <div style="min-width: 0;">
+                    <div class="text-sm font-black" data-i18n="ai">AI</div>
+                    <div id="settings-ai-status" class="text-xs font-bold" style="color: var(--muted);"></div>
+                  </div>
                 </div>
               </div>
-              <i data-lucide="database" class="w-5 h-5" style="color: var(--muted);"></i>
-            </div>
 
-            <div class="mt-3 grid grid-cols-2 gap-2">
-              <button onclick="exportData()" class="btn py-3"
-                style="background: color-mix(in srgb, var(--primary) 10%, var(--surface)); border: 1px solid color-mix(in srgb, var(--primary) 18%, var(--border)); color: var(--primary-2);">
-                <div class="flex items-center justify-center gap-2">
-                  <i data-lucide="download" class="w-4 h-4"></i>
-                  <span data-i18n="exportData">حفظ نسخة</span>
+              <div class="settings-divider"></div>
+
+              <div id="settings-gemini-saved" class="hidden">
+                <div class="text-[11px] font-black" style="color: var(--success);" data-i18n="aiKeySaved">API key saved</div>
+                <div class="mt-3 grid grid-cols-2 gap-2">
+                  <button onclick="showGeminiKeyEntry()" class="btn py-3"
+                    style="background: var(--surface-2); border: 1px solid var(--border);">
+                    <span class="font-black" data-i18n="aiChangeKey">Change key</span>
+                  </button>
+                  <button onclick="clearGeminiKeyFromSettings()" class="btn py-3"
+                    style="background: color-mix(in srgb, var(--danger) 10%, var(--surface)); border: 1px solid color-mix(in srgb, var(--danger) 18%, var(--border));">
+                    <span class="font-black" data-i18n="clear">Clear</span>
+                  </button>
                 </div>
-              </button>
-
-              <label class="btn py-3 cursor-pointer"
-                style="background: color-mix(in srgb, #3b82f6 10%, var(--surface)); border: 1px solid color-mix(in srgb, #3b82f6 18%, var(--border)); color: color-mix(in srgb, #3b82f6 92%, var(--fg));">
-                <input id="import-file" type="file" accept="application/json" class="hidden"
-                  onchange="importData(event)" />
-                <div class="flex items-center justify-center gap-2">
-                  <i data-lucide="upload" class="w-4 h-4"></i>
-                  <span data-i18n="importData">استيراد</span>
-                </div>
-              </label>
-
-              <button id="settings-mock-data" class="btn col-span-2 py-3"
-                style="background: color-mix(in srgb, var(--warn) 10%, var(--surface)); border: 1px solid color-mix(in srgb, var(--warn) 18%, var(--border)); color: color-mix(in srgb, var(--warn) 92%, var(--fg));">
-                <div class="flex items-center justify-center gap-2">
-                  <i data-lucide="flask-conical" class="w-4 h-4"></i>
-                  <span id="settings-mock-label" class="font-black"></span>
-                </div>
-              </button>
-
-              <button
-                onclick="console.log('🟢 Clear Data button clicked!'); openConfirm({title: t('clearData'), message: t('deleteWarning'), confirmText: t('yesDelete'), danger: true, onConfirm: clearAllData})"
-                class="btn col-span-2 py-3"
-                style="background: color-mix(in srgb, var(--danger) 10%, var(--surface)); border: 1px solid color-mix(in srgb, var(--danger) 18%, var(--border)); color: color-mix(in srgb, var(--danger) 92%, var(--fg));">
-                <div class="flex items-center justify-center gap-2">
-                  <i data-lucide="trash-2" class="w-4 h-4"></i>
-                  <span data-i18n="clearData">مسح كلشي</span>
-                </div>
-              </button>
-            </div>
-          </div>
-
-          <div class="card p-4 mt-4">
-            <div class="flex items-center justify-between">
-              <div>
-                <div class="text-sm font-black" data-i18n="cloud">السحابة</div>
-                <div class="text-xs font-bold" style="color: var(--muted);" data-i18n="cloudHint">نسخ احتياطي عبر Google</div>
               </div>
-              <i data-lucide="cloud" class="w-5 h-5" style="color: var(--muted);"></i>
-            </div>
 
-            <div class="mt-3 grid grid-cols-2 gap-2">
-              <button id="cloud-signin" onclick="cloudSignIn()" class="btn py-3"
-                style="background: color-mix(in srgb, #3b82f6 10%, var(--surface)); border: 1px solid color-mix(in srgb, #3b82f6 18%, var(--border)); color: color-mix(in srgb, #3b82f6 92%, var(--fg));">
-                <div class="flex items-center justify-center gap-2">
-                  <i data-lucide="log-in" class="w-4 h-4"></i>
-                  <span data-i18n="cloudSignIn">تسجيل الدخول</span>
+              <div id="settings-gemini-entry">
+                <label class="block text-xs font-extrabold mb-2" style="color: var(--muted);" data-i18n="aiGeminiKey">Gemini API Key</label>
+                <input id="settings-gemini-key" type="password" class="input font-latin" placeholder="AIza..." autocomplete="off" />
+                <div class="mt-2 text-[11px] font-bold" style="color: var(--muted);" data-i18n="aiGeminiKeyHint">Saved on your device. Needed for AI to work.</div>
+
+                <div class="mt-3 grid grid-cols-2 gap-2">
+                  <button onclick="saveGeminiKeyFromSettings()" class="btn py-3 text-white"
+                    style="background: linear-gradient(135deg, #4f46e5, #6366f1);">
+                    <span class="font-black" data-i18n="save">Save</span>
+                  </button>
+                  <button onclick="clearGeminiKeyFromSettings()" class="btn py-3"
+                    style="background: var(--surface-2); border: 1px solid var(--border);">
+                    <span class="font-black" data-i18n="clear">Clear</span>
+                  </button>
                 </div>
-              </button>
-
-              <button id="cloud-signout" onclick="cloudSignOut()" class="btn py-3"
-                style="background: color-mix(in srgb, var(--muted) 10%, var(--surface)); border: 1px solid color-mix(in srgb, var(--muted) 18%, var(--border)); color: var(--fg);">
-                <div class="flex items-center justify-center gap-2">
-                  <i data-lucide="log-out" class="w-4 h-4"></i>
-                  <span data-i18n="cloudSignOut">خروج</span>
-                </div>
-              </button>
-
-              <button onclick="cloudBackup()" class="btn col-span-2 py-3"
-                style="background: color-mix(in srgb, var(--success) 10%, var(--surface)); border: 1px solid color-mix(in srgb, var(--success) 18%, var(--border)); color: color-mix(in srgb, var(--success) 92%, var(--fg));">
-                <div class="flex items-center justify-center gap-2">
-                  <i data-lucide="cloud-upload" class="w-4 h-4"></i>
-                  <span data-i18n="cloudBackup">نسخ احتياطي الآن</span>
-                </div>
-              </button>
-
-              <button onclick="cloudRestore()" class="btn col-span-2 py-3"
-                style="background: color-mix(in srgb, var(--warn) 10%, var(--surface)); border: 1px solid color-mix(in srgb, var(--warn) 18%, var(--border)); color: color-mix(in srgb, var(--warn) 92%, var(--fg));">
-                <div class="flex items-center justify-center gap-2">
-                  <i data-lucide="cloud-download" class="w-4 h-4"></i>
-                  <span data-i18n="cloudRestore">استرجاع من السحابة</span>
-                </div>
-              </button>
-
-              <button onclick="cloudRefreshStatus()" class="btn col-span-2 py-3"
-                style="background: color-mix(in srgb, var(--muted) 10%, var(--surface)); border: 1px solid color-mix(in srgb, var(--muted) 18%, var(--border)); color: var(--fg);">
-                <div class="flex items-center justify-center gap-2">
-                  <i data-lucide="refresh-cw" class="w-4 h-4"></i>
-                  <span data-i18n="cloudRefreshStatus">تحديث الحالة</span>
-                </div>
-              </button>
-
-              <div id="cloud-user" class="col-span-2 text-xs font-bold" style="color: var(--muted);"></div>
-              <div id="cloud-status" class="col-span-2 text-xs font-bold" style="color: var(--muted);"></div>
-            </div>
-          </div>
-
-          <div class="card p-4 mt-4">
-            <div class="flex items-center justify-between">
-              <div>
-                <div class="text-sm font-black" data-i18n="security">الأمان</div>
-                <div class="text-xs font-bold" style="color: var(--muted);" data-i18n="securityHint">PIN + بصمة</div>
               </div>
-              <i data-lucide="shield" class="w-5 h-5" style="color: var(--muted);"></i>
             </div>
 
-            <div class="mt-3 grid grid-cols-2 gap-2">
-              <button onclick="securitySetPin()" class="btn py-3"
-                style="background: color-mix(in srgb, var(--primary) 10%, var(--surface)); border: 1px solid color-mix(in srgb, var(--primary) 18%, var(--border)); color: var(--primary-2);">
-                <div class="flex items-center justify-center gap-2">
-                  <i data-lucide="key" class="w-4 h-4"></i>
-                  <span data-i18n="setPin">تعيين PIN</span>
+            <div class="card p-4">
+              <div class="settings-card-head">
+                <div class="settings-card-left">
+                  <div class="settings-card-icon">
+                    <i data-lucide="database" class="w-5 h-5" style="color: var(--muted);"></i>
+                  </div>
+                  <div style="min-width: 0;">
+                    <div class="text-sm font-black" data-i18n="data">البيانات</div>
+                    <div class="text-xs font-bold" style="color: var(--muted);" data-i18n="dataHint">تصدير/استيراد أو مسح</div>
+                  </div>
                 </div>
-              </button>
+              </div>
 
-              <button onclick="securityDisablePin()" class="btn py-3"
-                style="background: color-mix(in srgb, var(--danger) 10%, var(--surface)); border: 1px solid color-mix(in srgb, var(--danger) 18%, var(--border)); color: color-mix(in srgb, var(--danger) 92%, var(--fg));">
-                <div class="flex items-center justify-center gap-2">
-                  <i data-lucide="lock-open" class="w-4 h-4"></i>
-                  <span data-i18n="disablePin">إلغاء PIN</span>
+              <div class="settings-divider"></div>
+
+              <div class="grid grid-cols-1 gap-2">
+                <button onclick="exportData()" class="btn py-3"
+                  style="background: color-mix(in srgb, var(--primary) 10%, var(--surface)); border: 1px solid color-mix(in srgb, var(--primary) 18%, var(--border)); color: var(--primary-2);">
+                  <div class="flex items-center justify-center gap-2">
+                    <i data-lucide="download" class="w-4 h-4"></i>
+                    <span data-i18n="exportData">حفظ نسخة</span>
+                  </div>
+                </button>
+
+                <label class="btn py-3 cursor-pointer"
+                  style="background: color-mix(in srgb, #3b82f6 10%, var(--surface)); border: 1px solid color-mix(in srgb, #3b82f6 18%, var(--border)); color: color-mix(in srgb, #3b82f6 92%, var(--fg));">
+                  <input id="import-file" type="file" accept="application/json" class="hidden" onchange="importData(event)" />
+                  <div class="flex items-center justify-center gap-2">
+                    <i data-lucide="upload" class="w-4 h-4"></i>
+                    <span data-i18n="importData">استيراد</span>
+                  </div>
+                </label>
+
+                <button onclick="console.log('🟢 Clear Data button clicked!'); openConfirm({title: t('clearData'), message: t('deleteWarning'), confirmText: t('yesDelete'), danger: true, onConfirm: clearAllData})"
+                  class="btn py-3"
+                  style="background: color-mix(in srgb, var(--danger) 10%, var(--surface)); border: 1px solid color-mix(in srgb, var(--danger) 18%, var(--border)); color: color-mix(in srgb, var(--danger) 92%, var(--fg));">
+                  <div class="flex items-center justify-center gap-2">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    <span data-i18n="clearData">مسح كلشي</span>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            <div class="card p-4">
+              <div class="settings-card-head">
+                <div class="settings-card-left">
+                  <div class="settings-card-icon">
+                    <i data-lucide="shield" class="w-5 h-5" style="color: var(--muted);"></i>
+                  </div>
+                  <div style="min-width: 0;">
+                    <div class="text-sm font-black" data-i18n="security">الأمان</div>
+                    <div class="text-xs font-bold" style="color: var(--muted);" data-i18n="securityHint">PIN + بصمة</div>
+                  </div>
                 </div>
-              </button>
+              </div>
 
-              <button id="btn-bio" onclick="securityToggleBiometric()" class="btn col-span-2 py-3"
-                style="background: color-mix(in srgb, #6366f1 10%, var(--surface)); border: 1px solid color-mix(in srgb, #6366f1 18%, var(--border)); color: color-mix(in srgb, #6366f1 92%, var(--fg));">
-                <div class="flex items-center justify-center gap-2">
-                  <i data-lucide="fingerprint" class="w-4 h-4"></i>
-                  <span id="bio-label" data-i18n="enableBiometric">تفعيل البصمة</span>
-                </div>
-              </button>
+              <div class="settings-divider"></div>
 
-              <div id="security-status" class="col-span-2 text-xs font-bold" style="color: var(--muted);"></div>
+              <div class="grid grid-cols-1 gap-2">
+                <button onclick="securitySetPin()" class="btn py-3"
+                  style="background: color-mix(in srgb, var(--primary) 10%, var(--surface)); border: 1px solid color-mix(in srgb, var(--primary) 18%, var(--border)); color: var(--primary-2);">
+                  <div class="flex items-center justify-center gap-2">
+                    <i data-lucide="key" class="w-4 h-4"></i>
+                    <span data-i18n="setPin">تعيين PIN</span>
+                  </div>
+                </button>
+
+                <button id="btn-bio" onclick="securityToggleBiometric()" class="btn py-3"
+                  style="background: color-mix(in srgb, #6366f1 10%, var(--surface)); border: 1px solid color-mix(in srgb, #6366f1 18%, var(--border)); color: color-mix(in srgb, #6366f1 92%, var(--fg));">
+                  <div class="flex items-center justify-center gap-2">
+                    <i data-lucide="fingerprint" class="w-4 h-4"></i>
+                    <span id="bio-label" data-i18n="enableBiometric">تفعيل البصمة</span>
+                  </div>
+                </button>
+
+                <button onclick="securityDisablePin()" class="btn py-3"
+                  style="background: color-mix(in srgb, var(--danger) 10%, var(--surface)); border: 1px solid color-mix(in srgb, var(--danger) 18%, var(--border)); color: color-mix(in srgb, var(--danger) 92%, var(--fg));">
+                  <div class="flex items-center justify-center gap-2">
+                    <i data-lucide="lock-open" class="w-4 h-4"></i>
+                    <span data-i18n="disablePin">إلغاء PIN</span>
+                  </div>
+                </button>
+
+                <div id="security-status" class="text-xs font-bold" style="color: var(--muted);"></div>
+              </div>
             </div>
           </div>
 
           <div class="mt-6 text-center text-xs font-bold" style="color: var(--muted);">
-            <div class="mb-1">TIJARATI — v3 <span class="font-latin">offline</span></div>
+            <div class="mb-1">TIJARATI — v4 <span class="font-latin">offline</span></div>
             <div class="opacity-80">
               Created by <button onclick="API.openExternal('https://portfolio-v2-eight-lovat.vercel.app/en')"
                 class="font-black underline decoration-2 decoration-teal-500/50 hover:decoration-teal-500 text-teal-600">OUSSAMA</button>
@@ -963,80 +1367,62 @@
         </div>
       </section>
 
-      <!-- AUTH (Full-page) -->
-      <section id="auth-screen" class="screen flex-col h-full absolute inset-0 z-[72]"
+      <!-- PIN SETUP (Full-page) -->
+      <section id="pin-setup-screen" class="screen flex-col h-full absolute inset-0 z-[74]"
         style="background: var(--bg);">
         <header class="px-5 pt-5 pb-4 sticky top-0 z-10 glass">
           <div class="flex items-center justify-between">
-            <button onclick="goBack()" class="w-10 h-10 rounded-2xl flex items-center justify-center"
+            <button onclick="closePinSetup()" class="w-10 h-10 rounded-2xl flex items-center justify-center"
               style="background: var(--surface-2); border: 1px solid var(--border);" aria-label="Back">
               <i data-lucide="arrow-right" class="w-5 h-5 rtl:rotate-180"></i>
             </button>
-            <div class="text-lg font-black" data-i18n="authTitle">تسجيل الدخول</div>
+            <div id="pin-setup-title" class="text-lg font-black" data-i18n="setPin">تعيين PIN</div>
             <div class="w-10 h-10"></div>
           </div>
         </header>
 
         <div class="flex-1 overflow-y-auto px-5 pt-4 pb-10 safe-bottom">
           <div class="card p-5">
-            <div id="auth-screen-status" class="text-xs font-bold" style="color: var(--muted);"></div>
-
-            <div class="mt-4 flex rounded-2xl p-1" style="background: var(--surface-2); border: 1px solid var(--border);">
-              <button id="auth-tab-signin" onclick="setAuthScreenMode('signin')" class="flex-1 py-2 rounded-xl font-black text-sm">
-                <span data-i18n="signIn">دخول</span>
-              </button>
-              <button id="auth-tab-signup" onclick="setAuthScreenMode('signup')" class="flex-1 py-2 rounded-xl font-black text-sm" style="color: var(--muted);">
-                <span data-i18n="signUp">حساب جديد</span>
-              </button>
+            <div class="flex items-center gap-3">
+              <div class="w-11 h-11 rounded-2xl flex items-center justify-center"
+                style="background: var(--surface-2); border: 1px solid var(--border);">
+                <i data-lucide="lock" class="w-5 h-5" style="color: var(--muted);"></i>
+              </div>
+              <div>
+                <div id="pin-setup-head" class="text-base font-black" data-i18n="pinCreateTitle">Set a new PIN</div>
+                <div id="pin-setup-hint" class="text-xs font-bold" style="color: var(--muted);" data-i18n="pinCreateHint">Choose 4+ digits</div>
+              </div>
             </div>
 
-            <div class="mt-4 space-y-3">
-              <div>
-                <label class="block text-xs font-extrabold mb-2" style="color: var(--muted);" data-i18n="email">البريد الإلكتروني</label>
-                <input id="auth-screen-email" type="email" class="input" placeholder="name@email.com" autocomplete="email" />
-              </div>
-              <div>
-                <label class="block text-xs font-extrabold mb-2" style="color: var(--muted);" data-i18n="password">كلمة المرور</label>
-                <input id="auth-screen-password" type="password" class="input" placeholder="••••••••" autocomplete="current-password" />
-              </div>
-              <div id="auth-screen-confirm-wrap" class="hidden">
-                <label class="block text-xs font-extrabold mb-2" style="color: var(--muted);" data-i18n="confirmPassword">تأكيد كلمة المرور</label>
-                <input id="auth-screen-confirm" type="password" class="input" placeholder="••••••••" autocomplete="new-password" />
-              </div>
+            <div class="mt-5 pin-dots" id="pin-setup-dots" aria-label="PIN dots"></div>
+            <div id="pin-setup-error" class="mt-3 text-xs font-black text-center" style="color: var(--danger);"></div>
 
-              <button id="auth-screen-primary" onclick="authScreenPrimary()" class="btn py-3 text-white"
-                style="background: linear-gradient(135deg, var(--primary), var(--primary-2));">
+            <div class="mt-5 grid grid-cols-3 gap-3" style="direction:ltr;">
+              <button class="btn pin-key" onclick="pinSetupDigit('1')">1</button>
+              <button class="btn pin-key" onclick="pinSetupDigit('2')">2</button>
+              <button class="btn pin-key" onclick="pinSetupDigit('3')">3</button>
+              <button class="btn pin-key" onclick="pinSetupDigit('4')">4</button>
+              <button class="btn pin-key" onclick="pinSetupDigit('5')">5</button>
+              <button class="btn pin-key" onclick="pinSetupDigit('6')">6</button>
+              <button class="btn pin-key" onclick="pinSetupDigit('7')">7</button>
+              <button class="btn pin-key" onclick="pinSetupDigit('8')">8</button>
+              <button class="btn pin-key" onclick="pinSetupDigit('9')">9</button>
+              <button class="btn pin-key secondary" onclick="pinSetupBackspace()">⌫</button>
+              <button class="btn pin-key" onclick="pinSetupDigit('0')">0</button>
+              <button class="btn pin-key ok" onclick="pinSetupOk()">OK</button>
+            </div>
+
+            <div class="mt-4 grid grid-cols-2 gap-2">
+              <button class="btn py-3" onclick="pinSetupClear()"
+                style="background: var(--surface-2); border: 1px solid var(--border); color: var(--fg);">
                 <div class="flex items-center justify-center gap-2">
-                  <i data-lucide="log-in" class="w-4 h-4"></i>
-                  <span id="auth-screen-primary-text" class="font-black" data-i18n="signIn">دخول</span>
+                  <i data-lucide="x" class="w-4 h-4" style="color: var(--muted);"></i>
+                  <span class="font-black" data-i18n="clear">Clear</span>
                 </div>
               </button>
-
-              <button onclick="authScreenReset()" class="btn py-3"
+              <button class="btn py-3" onclick="closePinSetup()"
                 style="background: transparent; border: 1px solid var(--border); color: var(--muted);">
-                <span class="font-black" data-i18n="resetPassword">نسيت كلمة المرور؟</span>
-              </button>
-
-              <div class="flex items-center gap-3 my-2" style="color: var(--muted);">
-                <div class="h-px flex-1" style="background: var(--border);"></div>
-                <div class="text-[11px] font-extrabold">OR</div>
-                <div class="h-px flex-1" style="background: var(--border);"></div>
-              </div>
-
-              <button onclick="cloudSignIn()" class="btn py-3"
-                style="background: color-mix(in srgb, #3b82f6 10%, var(--surface)); border: 1px solid color-mix(in srgb, #3b82f6 18%, var(--border)); color: color-mix(in srgb, #3b82f6 92%, var(--fg));">
-                <div class="flex items-center justify-center gap-2">
-                  <i data-lucide="chrome" class="w-4 h-4"></i>
-                  <span class="font-black" data-i18n="continueWithGoogle">تابع عبر Google</span>
-                </div>
-              </button>
-
-              <button id="auth-screen-signout" onclick="cloudSignOut()" class="btn py-3 hidden"
-                style="background: color-mix(in srgb, var(--danger) 10%, var(--surface)); border: 1px solid color-mix(in srgb, var(--danger) 18%, var(--border)); color: color-mix(in srgb, var(--danger) 92%, var(--fg));">
-                <div class="flex items-center justify-center gap-2">
-                  <i data-lucide="log-out" class="w-4 h-4"></i>
-                  <span class="font-black" data-i18n="cloudSignOut">خروج</span>
-                </div>
+                <span class="font-black" data-i18n="cancel">Cancel</span>
               </button>
             </div>
           </div>
@@ -1150,7 +1536,7 @@
             <div class="flex items-center justify-between">
               <div>
                 <div class="text-sm font-black" data-i18n="pricingMode">طريقة الحساب</div>
-                <div class="text-xs font-bold" style="color: var(--muted);" data-i18n="pricingHint">دخل الثمن والعدد وخلي التطبيق يحسب</div>
+                <div id="pricing-hint-main" class="text-xs font-bold" style="color: var(--muted);"></div>
               </div>
               <div class="flex rounded-2xl p-1" style="background: var(--surface); border: 1px solid var(--border);">
                 <button id="btn-mode-unit" onclick="setPricingMode('unit')" class="px-3 py-1.5 rounded-xl text-xs font-black" data-i18n="unitPriceMode">ثمن الوحدة</button>
@@ -1159,14 +1545,14 @@
             </div>
 
             <div class="mt-4 grid grid-cols-2 gap-3">
-              <div>
+              <div id="tx-unit-wrap">
                 <label class="block text-xs font-extrabold mb-2" style="color: var(--muted);" data-i18n="unitPrice">الثمن (للوحدة)</label>
                 <div class="relative">
                   <input id="tx-unit-price" type="number" inputmode="decimal" class="input money-input" placeholder="0" />
                   <div class="money-currency"><span class="currency-symbol">DH</span></div>
                 </div>
               </div>
-              <div>
+              <div id="tx-total-wrap" class="hidden">
                 <label class="block text-xs font-extrabold mb-2" style="color: var(--muted);" data-i18n="totalPrice">الثمن الإجمالي</label>
                 <div class="relative">
                   <input id="tx-total-price" type="number" inputmode="decimal" class="input money-input" placeholder="0" />
@@ -1260,64 +1646,6 @@
             style="background: var(--surface-2); border: 1px solid var(--border);" data-i18n="cancel">إلغاء</button>
           <button id="confirm-action" class="btn py-3 text-white"
             style="background: linear-gradient(135deg, var(--danger), color-mix(in srgb, var(--danger) 70%, #7f1d1d));">حذف</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Auth modal (email/password + Google) -->
-    <div id="auth-modal" class="fixed inset-0 z-[96] hidden items-center justify-center p-4"
-      style="background: rgba(0,0,0,0.55); backdrop-filter: blur(10px);">
-      <div class="w-full max-w-sm card p-5 animate-pop" style="border-radius: 26px;">
-        <div class="flex items-start justify-between gap-3">
-          <div>
-            <div class="text-lg font-black" data-i18n="authTitle">تسجيل الدخول</div>
-            <div id="auth-sub" class="mt-1 text-xs font-bold" style="color: var(--muted);"></div>
-          </div>
-          <button onclick="closeAuthModal()" class="w-10 h-10 rounded-2xl flex items-center justify-center"
-            style="background: var(--surface-2); border: 1px solid var(--border);" aria-label="Close">
-            <i data-lucide="x" class="w-5 h-5"></i>
-          </button>
-        </div>
-
-        <div class="mt-4 space-y-3">
-          <div>
-            <label class="block text-xs font-extrabold mb-2" style="color: var(--muted);" data-i18n="email">البريد الإلكتروني</label>
-            <input id="auth-email" type="email" class="input" placeholder="name@email.com" autocomplete="email" />
-          </div>
-          <div>
-            <label class="block text-xs font-extrabold mb-2" style="color: var(--muted);" data-i18n="password">كلمة المرور</label>
-            <input id="auth-password" type="password" class="input" placeholder="••••••••" autocomplete="current-password" />
-          </div>
-
-          <div class="grid grid-cols-2 gap-2">
-            <button onclick="authEmailSignIn()" class="btn py-3 text-white"
-              style="background: linear-gradient(135deg, var(--primary), var(--primary-2));">
-              <span class="font-black" data-i18n="signIn">دخول</span>
-            </button>
-            <button onclick="authEmailSignUp()" class="btn py-3"
-              style="background: var(--surface-2); border: 1px solid var(--border);">
-              <span class="font-black" data-i18n="signUp">حساب جديد</span>
-            </button>
-          </div>
-
-          <button onclick="authResetPassword()" class="btn py-3"
-            style="background: transparent; border: 1px solid transparent; color: var(--muted);">
-            <span class="font-black" data-i18n="resetPassword">نسيت كلمة المرور؟</span>
-          </button>
-
-          <div class="flex items-center gap-3 my-2" style="color: var(--muted);">
-            <div class="h-px flex-1" style="background: var(--border);"></div>
-            <div class="text-[11px] font-extrabold">OR</div>
-            <div class="h-px flex-1" style="background: var(--border);"></div>
-          </div>
-
-          <button onclick="authGoogleSignIn()" class="btn py-3"
-            style="background: color-mix(in srgb, #3b82f6 10%, var(--surface)); border: 1px solid color-mix(in srgb, #3b82f6 18%, var(--border)); color: color-mix(in srgb, #3b82f6 92%, var(--fg));">
-            <div class="flex items-center justify-center gap-2">
-              <i data-lucide="chrome" class="w-4 h-4"></i>
-              <span class="font-black" data-i18n="continueWithGoogle">تابع عبر Google</span>
-            </div>
-          </button>
         </div>
       </div>
     </div>
@@ -1666,7 +1994,7 @@
   <!-- Firebase (Compat) for in-app cloud backup/restore + Google sign-in -->
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-storage-compat.js"></script>
+  <!-- Cloud backup removed (Firebase Storage not used) -->
 
   <script>
     // Make the app resilient when CDN scripts (lucide/tailwind) are unavailable in mobile WebView.
@@ -1692,6 +2020,7 @@
 
     const Cloud = {
       user: null,
+      status: null,
       init: async () => {
         try {
           const proto = (window.location && window.location.protocol) ? window.location.protocol : '';
@@ -1727,18 +2056,23 @@
         } catch { }
       },
       updateUi: () => {
-        const el = document.getElementById('cloud-user');
-        const btnIn = document.getElementById('cloud-signin');
-        const btnOut = document.getElementById('cloud-signout');
-
-        if (el) {
-          if (Cloud.user) el.textContent = `${Cloud.user.displayName || ''} ${Cloud.user.email ? '(' + Cloud.user.email + ')' : ''}`.trim();
-          else el.textContent = '';
-        }
-        if (btnIn) btnIn.style.opacity = Cloud.user ? '0.55' : '1';
-        if (btnOut) btnOut.style.opacity = Cloud.user ? '1' : '0.55';
+        // Cloud backup + auth UI removed.
       }
     };
+
+    // Cloud backup removed
+    async function cloudBackup() {
+      showToast('Cloud backup is disabled.', 'info');
+    }
+
+    async function cloudRestore() {
+      showToast('Cloud restore is disabled.', 'info');
+    }
+
+    async function cloudRefreshStatus() {
+      const statusEl = document.getElementById('cloud-status');
+      if (statusEl) statusEl.textContent = '';
+    }
 
     async function cloudSignIn() {
       try {
@@ -1769,92 +2103,6 @@
       }
     }
 
-    function openAuthModal() {
-      try {
-        const modal = document.getElementById('auth-modal');
-        if (!modal) return;
-
-        const sub = document.getElementById('auth-sub');
-        if (sub) {
-          if (Cloud.user) sub.textContent = `${t('cloudStatusSignedIn') || ''} ${Cloud.user.email ? '• ' + Cloud.user.email : ''}`.trim();
-          else sub.textContent = t('cloudStatusSignedOut');
-        }
-
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-        try { lucide.createIcons(); } catch { }
-
-        setTimeout(() => {
-          const email = document.getElementById('auth-email');
-          if (email) email.focus();
-        }, 60);
-      } catch { }
-    }
-
-    function closeAuthModal() {
-      const modal = document.getElementById('auth-modal');
-      if (!modal) return;
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
-    }
-
-    async function authEmailSignIn() {
-      try {
-        if (!window.firebase || !firebase.auth) throw new Error('Firebase not available');
-        const email = (document.getElementById('auth-email')?.value || '').trim();
-        const pass = (document.getElementById('auth-password')?.value || '').trim();
-        if (!email || !pass) {
-          showToast(t('fillAll'), 'error');
-          return;
-        }
-        await firebase.auth().signInWithEmailAndPassword(email, pass);
-        closeAuthModal();
-        showToast(t('signedIn') || 'Signed in', 'success');
-      } catch (e) {
-        showToast(String(e?.message || e || 'Sign in failed'), 'error');
-      }
-    }
-
-    async function authEmailSignUp() {
-      try {
-        if (!window.firebase || !firebase.auth) throw new Error('Firebase not available');
-        const email = (document.getElementById('auth-email')?.value || '').trim();
-        const pass = (document.getElementById('auth-password')?.value || '').trim();
-        if (!email || !pass) {
-          showToast(t('fillAll'), 'error');
-          return;
-        }
-        if (pass.length < 6) {
-          showToast(t('passwordMin') || 'Password must be at least 6 characters', 'error');
-          return;
-        }
-        await firebase.auth().createUserWithEmailAndPassword(email, pass);
-        closeAuthModal();
-        showToast(t('accountCreated') || 'Account created', 'success');
-      } catch (e) {
-        showToast(String(e?.message || e || 'Sign up failed'), 'error');
-      }
-    }
-
-    async function authResetPassword() {
-      try {
-        if (!window.firebase || !firebase.auth) throw new Error('Firebase not available');
-        const email = (document.getElementById('auth-email')?.value || '').trim();
-        if (!email) {
-          showToast(t('emailRequired') || 'Email is required', 'error');
-          return;
-        }
-        await firebase.auth().sendPasswordResetEmail(email);
-        showToast(t('resetSent') || 'Password reset email sent', 'success');
-      } catch (e) {
-        showToast(String(e?.message || e || 'Reset failed'), 'error');
-      }
-    }
-
-    function authGoogleSignIn() {
-      closeAuthModal();
-      cloudSignIn();
-    }
 
     async function cloudSignOut() {
       try {
@@ -1879,358 +2127,18 @@
     }
 
     async function cloudBackup() {
-      try {
-        const proto = (window.location && window.location.protocol) ? window.location.protocol : '';
-        if (isNativeCloudMode()) {
-          showBlockingOverlay(t('cloudBackup'), '...');
-          await syncFromNative();
-
-          const snapshot = {
-            version: 3,
-            createdAt: Date.now(),
-            language: state.language,
-            currency: state.currency,
-            transactions: state.transactions || [],
-            partners: state.partners || []
-          };
-
-          const txCount = Array.isArray(snapshot.transactions) ? snapshot.transactions.length : 0;
-          const partnerCount = Array.isArray(snapshot.partners) ? snapshot.partners.length : 0;
-          const manifest = {
-            version: 1,
-            createdAt: Date.now(),
-            txCount,
-            partnerCount,
-            localRevision: typeof state.localRevision === 'number' ? state.localRevision : 0,
-            lastLocalChangeAt: typeof state.lastLocalChangeAt === 'number' ? state.lastLocalChangeAt : 0
-          };
-
-          const res = await nativeRequest('CLOUD_BACKUP', { snapshot, manifest });
-          if (res && res.success === false) throw new Error(res.error || 'Backup failed');
-          const mf = res?.manifest || manifest;
-          state.lastBackup = {
-            cloudCreatedAt: Number(mf.createdAt || manifest.createdAt),
-            txCount: Number(mf.txCount || manifest.txCount),
-            partnerCount: Number(mf.partnerCount || manifest.partnerCount),
-            localRevision: Number(mf.localRevision || manifest.localRevision)
-          };
-          saveState();
-          showToast(t('cloudBackupDone'), 'success');
-          try { await cloudRefreshStatus({ skipSync: true }); } catch { }
-          return;
-        }
-
-        if (proto !== 'http:' && proto !== 'https:') {
-          showToast(t('cloudNotSupported') || 'Cloud requires http/https or the mobile app.', 'info');
-          return;
-        }
-        if (!Cloud.user) {
-          showToast(t('cloudNeedLogin'), 'info');
-          return;
-        }
-        if (!firebase.storage) throw new Error('Storage not available');
-
-        showBlockingOverlay(t('cloudBackup'), '...');
-        await syncFromNative();
-
-        const snapshot = {
-          version: 3,
-          createdAt: Date.now(),
-          language: state.language,
-          currency: state.currency,
-          transactions: state.transactions || [],
-          partners: state.partners || []
-        };
-
-        const uid = Cloud.user.uid;
-        const basePath = `tijarati_backups/${uid}`;
-        const ref = firebase.storage().ref().child(`${basePath}/latest.json`);
-        const manifestRef = firebase.storage().ref().child(`${basePath}/latest_manifest.json`);
-
-        const txCount = Array.isArray(snapshot.transactions) ? snapshot.transactions.length : 0;
-        const partnerCount = Array.isArray(snapshot.partners) ? snapshot.partners.length : 0;
-
-        const manifest = {
-          version: 1,
-          createdAt: Date.now(),
-          txCount,
-          partnerCount,
-          localRevision: typeof state.localRevision === 'number' ? state.localRevision : 0,
-          lastLocalChangeAt: typeof state.lastLocalChangeAt === 'number' ? state.lastLocalChangeAt : 0
-        };
-
-        await ref.putString(JSON.stringify(snapshot), 'raw', { contentType: 'application/json' });
-        await manifestRef.putString(JSON.stringify(manifest), 'raw', { contentType: 'application/json' });
-
-        state.lastBackup = {
-          cloudCreatedAt: manifest.createdAt,
-          txCount: manifest.txCount,
-          partnerCount: manifest.partnerCount,
-          localRevision: manifest.localRevision
-        };
-        saveState();
-
-        showToast(t('cloudBackupDone'), 'success');
-        try { await cloudRefreshStatus({ skipSync: true }); } catch { }
-      } catch (e) {
-        showToast(String(e?.message || e || 'Backup failed'), 'error');
-      } finally {
-        try { hideBlockingOverlay(); } catch { }
-      }
+      showToast('Cloud backup is disabled.', 'info');
     }
 
-    async function cloudRefreshStatus(opts = {}) {
+    async function cloudRefreshStatus() {
       const statusEl = document.getElementById('cloud-status');
-      if (!statusEl) return;
-
-      if (isNativeCloudMode()) {
-        try {
-          statusEl.textContent = t('cloudStatusLoading');
-          if (!opts.skipSync) await syncFromNative();
-
-          const res = await nativeRequest('CLOUD_STATUS', {});
-          Cloud.user = res?.user || null;
-          Cloud.updateUi();
-
-          const manifest = res?.manifest || null;
-          const localTx = Array.isArray(state.transactions) ? state.transactions.length : 0;
-          const localPartners = Array.isArray(state.partners) ? state.partners.length : 0;
-          const localRev = typeof state.localRevision === 'number' ? state.localRevision : 0;
-
-          if (!Cloud.user) {
-            statusEl.textContent = t('cloudStatusSignedOut');
-            return;
-          }
-
-          if (!manifest) {
-            statusEl.textContent = `${t('cloudStatusNever')} • ${t('cloudStatusLocalItems')}: ${localTx} tx, ${localPartners} partners • ${t('cloudStatusPendingItems')}: ${localTx} tx, ${localPartners} partners`;
-            return;
-          }
-
-          const cloudTx = Number(manifest.txCount || 0);
-          const cloudPartners = Number(manifest.partnerCount || 0);
-          const cloudAt = Number(manifest.createdAt || 0);
-          const cloudRev = Number(manifest.localRevision || 0);
-
-          const dateStr = cloudAt ? new Date(cloudAt).toLocaleString() : '';
-          const inSync = cloudRev === localRev;
-          const pendingTx = inSync ? 0 : localTx;
-          const pendingPartners = inSync ? 0 : localPartners;
-
-          statusEl.textContent = `${t('cloudStatusLast')}: ${dateStr || '-'} • ${t('cloudStatusCloudItems')}: ${cloudTx} tx, ${cloudPartners} partners • ${t('cloudStatusLocalItems')}: ${localTx} tx, ${localPartners} partners • ${t('cloudStatusPendingItems')}: ${pendingTx} tx, ${pendingPartners} partners`;
-
-          state.lastBackup = {
-            cloudCreatedAt: cloudAt || Date.now(),
-            txCount: cloudTx,
-            partnerCount: cloudPartners,
-            localRevision: cloudRev
-          };
-          saveState();
-        } catch {
-          statusEl.textContent = t('cloudStatusError');
-        }
-        return;
-      }
-
-      if (!Cloud.user) {
-        statusEl.textContent = t('cloudStatusSignedOut');
-        return;
-      }
-
-      try {
-        if (!firebase.storage) throw new Error('Storage not available');
-        statusEl.textContent = t('cloudStatusLoading');
-        if (!opts.skipSync) await syncFromNative();
-
-        const uid = Cloud.user.uid;
-        const basePath = `tijarati_backups/${uid}`;
-        const manifestRef = firebase.storage().ref().child(`${basePath}/latest_manifest.json`);
-
-        let manifest = null;
-        try {
-          const url = await manifestRef.getDownloadURL();
-          const res = await fetch(url);
-          if (res.ok) manifest = await res.json();
-        } catch {
-          manifest = null;
-        }
-
-        const localTx = Array.isArray(state.transactions) ? state.transactions.length : 0;
-        const localPartners = Array.isArray(state.partners) ? state.partners.length : 0;
-        const localRev = typeof state.localRevision === 'number' ? state.localRevision : 0;
-
-        if (!manifest) {
-          statusEl.textContent = `${t('cloudStatusNever')} • ${t('cloudStatusLocalItems')}: ${localTx} tx, ${localPartners} partners • ${t('cloudStatusPendingItems')}: ${localTx} tx, ${localPartners} partners`;
-          return;
-        }
-
-        const cloudTx = Number(manifest.txCount || 0);
-        const cloudPartners = Number(manifest.partnerCount || 0);
-        const cloudAt = Number(manifest.createdAt || 0);
-        const cloudRev = Number(manifest.localRevision || 0);
-
-        const dateStr = cloudAt ? new Date(cloudAt).toLocaleString() : '';
-        const inSync = cloudRev === localRev;
-        const pendingTx = inSync ? 0 : localTx;
-        const pendingPartners = inSync ? 0 : localPartners;
-
-        statusEl.textContent = `${t('cloudStatusLast')}: ${dateStr || '-'} • ${t('cloudStatusCloudItems')}: ${cloudTx} tx, ${cloudPartners} partners • ${t('cloudStatusLocalItems')}: ${localTx} tx, ${localPartners} partners • ${t('cloudStatusPendingItems')}: ${pendingTx} tx, ${pendingPartners} partners`;
-
-        state.lastBackup = {
-          cloudCreatedAt: cloudAt || Date.now(),
-          txCount: cloudTx,
-          partnerCount: cloudPartners,
-          localRevision: cloudRev
-        };
-        saveState();
-      } catch {
-        statusEl.textContent = t('cloudStatusError');
-      }
+      if (statusEl) statusEl.textContent = '';
+      Cloud.status = null;
+      try { Cloud.updateUi(); } catch { }
     }
 
     async function cloudRestore() {
-      try {
-        const proto = (window.location && window.location.protocol) ? window.location.protocol : '';
-        if (isNativeCloudMode()) {
-          if (!confirm(t('cloudRestoreConfirm'))) return;
-          showBlockingOverlay(t('cloudRestore'), '...');
-
-          const res = await nativeRequest('CLOUD_RESTORE', {});
-          if (res && res.success === false) throw new Error(res.error || 'Restore failed');
-          const snapshot = res?.snapshot;
-          const manifest = res?.manifest || null;
-          if (!snapshot) {
-            showToast(t('cloudNoBackup'), 'info');
-            return;
-          }
-
-          // Overwrite local DB (native)
-          await API.clearAllData();
-
-          const txs = Array.isArray(snapshot.transactions) ? snapshot.transactions : [];
-          const parts = Array.isArray(snapshot.partners) ? snapshot.partners : [];
-
-          for (const tx of txs) await API.saveTransaction(tx);
-          for (const p of parts) await API.savePartner(p);
-
-          state.language = snapshot.language || state.language;
-          state.currency = snapshot.currency || state.currency;
-
-          if (manifest && typeof manifest.localRevision === 'number') {
-            state.localRevision = manifest.localRevision;
-            state.lastLocalChangeAt = typeof manifest.lastLocalChangeAt === 'number' ? manifest.lastLocalChangeAt : Date.now();
-            state.lastBackup = {
-              cloudCreatedAt: Number(manifest.createdAt || Date.now()),
-              txCount: Number(manifest.txCount || 0),
-              partnerCount: Number(manifest.partnerCount || 0),
-              localRevision: Number(manifest.localRevision || 0)
-            };
-          } else {
-            state.localRevision = (typeof state.localRevision === 'number' ? state.localRevision : 0) + 1;
-            state.lastLocalChangeAt = Date.now();
-            state.lastBackup = {
-              cloudCreatedAt: Date.now(),
-              txCount: Array.isArray(snapshot.transactions) ? snapshot.transactions.length : 0,
-              partnerCount: Array.isArray(snapshot.partners) ? snapshot.partners.length : 0,
-              localRevision: state.localRevision
-            };
-          }
-          saveState();
-
-          await syncFromNative();
-          renderAll();
-          showToast(t('cloudRestoreDone'), 'success');
-          try { await cloudRefreshStatus({ skipSync: true }); } catch { }
-          return;
-        }
-
-        if (proto !== 'http:' && proto !== 'https:') {
-          showToast(t('cloudNotSupported') || 'Cloud requires http/https or the mobile app.', 'info');
-          return;
-        }
-        if (!Cloud.user) {
-          showToast(t('cloudNeedLogin'), 'info');
-          return;
-        }
-        if (!confirm(t('cloudRestoreConfirm'))) return;
-        if (!firebase.storage) throw new Error('Storage not available');
-
-        showBlockingOverlay(t('cloudRestore'), '...');
-        const uid = Cloud.user.uid;
-        const basePath = `tijarati_backups/${uid}`;
-        const ref = firebase.storage().ref().child(`${basePath}/latest.json`);
-        const manifestRef = firebase.storage().ref().child(`${basePath}/latest_manifest.json`);
-
-        // Read manifest if present (for status + revision alignment)
-        let manifest = null;
-        try {
-          const mUrl = await manifestRef.getDownloadURL();
-          const mRes = await fetch(mUrl);
-          if (mRes.ok) manifest = await mRes.json();
-        } catch {
-          manifest = null;
-        }
-
-        let url = null;
-        try {
-          url = await ref.getDownloadURL();
-        } catch {
-          showToast(t('cloudNoBackup'), 'info');
-          return;
-        }
-
-        const res = await fetch(url);
-        if (!res.ok) throw new Error('Download failed');
-        const snapshot = await res.json();
-
-        // Overwrite local DB (native)
-        await API.clearAllData();
-
-        const txs = Array.isArray(snapshot.transactions) ? snapshot.transactions : [];
-        const parts = Array.isArray(snapshot.partners) ? snapshot.partners : [];
-
-        for (const tx of txs) {
-          await API.saveTransaction(tx);
-        }
-        for (const p of parts) {
-          await API.savePartner(p);
-        }
-
-        state.language = snapshot.language || state.language;
-        state.currency = snapshot.currency || state.currency;
-
-        // After restore, align local revision to the cloud snapshot's revision if available
-        if (manifest && typeof manifest.localRevision === 'number') {
-          state.localRevision = manifest.localRevision;
-          state.lastLocalChangeAt = typeof manifest.lastLocalChangeAt === 'number' ? manifest.lastLocalChangeAt : Date.now();
-          state.lastBackup = {
-            cloudCreatedAt: Number(manifest.createdAt || Date.now()),
-            txCount: Number(manifest.txCount || 0),
-            partnerCount: Number(manifest.partnerCount || 0),
-            localRevision: Number(manifest.localRevision || 0)
-          };
-        } else {
-          // fallback: consider restored state as backed up (unknown revision)
-          state.localRevision = (typeof state.localRevision === 'number' ? state.localRevision : 0) + 1;
-          state.lastLocalChangeAt = Date.now();
-          state.lastBackup = {
-            cloudCreatedAt: Date.now(),
-            txCount: Array.isArray(snapshot.transactions) ? snapshot.transactions.length : 0,
-            partnerCount: Array.isArray(snapshot.partners) ? snapshot.partners.length : 0,
-            localRevision: state.localRevision
-          };
-        }
-        saveState();
-
-        await syncFromNative();
-        renderAll();
-        showToast(t('cloudRestoreDone'), 'success');
-        try { await cloudRefreshStatus({ skipSync: true }); } catch { }
-      } catch (e) {
-        showToast(String(e?.message || e || 'Restore failed'), 'error');
-      } finally {
-        try { hideBlockingOverlay(); } catch { }
-      }
+      showToast('Cloud restore is disabled.', 'info');
     }
 
     // ==========================
@@ -2280,26 +2188,195 @@
 
     async function securitySetPin() {
       if (!window.isNativeApp) return;
-      const pin = prompt(t('enterPin'));
-      if (pin === null) return;
-      const res = await nativeRequest('SECURITY_SET_PIN', { pin: String(pin) });
-      if (res && res.success === false) {
-        showToast(res.error || 'Failed', 'error');
-      } else {
-        showToast(t('pinEnabled'), 'success');
+      openPinSetup();
+    }
+
+    // ==========================
+    // Full-screen PIN setup (native-only)
+    // ==========================
+    const pinSetupState = {
+      mode: 'set', // 'set' | 'disable'
+      step: 'create',
+      firstPin: '',
+      input: ''
+    };
+
+    function openPinSetup() {
+      if (!window.isNativeApp) return;
+      try {
+        // Ensure back returns to Settings
+        if (typeof navStack !== 'undefined') {
+          const current = document.querySelector('.screen.active')?.id;
+          if (current && current !== 'pin-setup-screen') navStack.push(current);
+        }
+      } catch { }
+
+      pinSetupState.mode = 'set';
+      pinSetupState.step = 'create';
+      pinSetupState.firstPin = '';
+      pinSetupState.input = '';
+      pinSetupRender();
+
+      showScreen('pin-setup-screen', { push: false });
+      try { lucide.createIcons(); } catch { }
+    }
+
+    function openPinDisable() {
+      if (!window.isNativeApp) return;
+      try {
+        if (typeof navStack !== 'undefined') {
+          const current = document.querySelector('.screen.active')?.id;
+          if (current && current !== 'pin-setup-screen') navStack.push(current);
+        }
+      } catch { }
+
+      pinSetupState.mode = 'disable';
+      pinSetupState.step = 'verify';
+      pinSetupState.firstPin = '';
+      pinSetupState.input = '';
+      pinSetupRender();
+
+      showScreen('pin-setup-screen', { push: false });
+      try { lucide.createIcons(); } catch { }
+    }
+
+    function closePinSetup() {
+      // Prefer normal back behavior if available
+      try {
+        if (typeof goBack === 'function') {
+          goBack();
+          return;
+        }
+      } catch { }
+      showScreen('settings-screen', { push: false });
+    }
+
+    function pinSetupRender() {
+      const titleEl = document.getElementById('pin-setup-title');
+      const headEl = document.getElementById('pin-setup-head');
+      const hintEl = document.getElementById('pin-setup-hint');
+      const dotsEl = document.getElementById('pin-setup-dots');
+      const errEl = document.getElementById('pin-setup-error');
+      if (errEl) errEl.textContent = '';
+
+      if (titleEl) titleEl.textContent = pinSetupState.mode === 'disable' ? t('disablePin') : t('setPin');
+
+      if (headEl && hintEl) {
+        if (pinSetupState.mode === 'disable') {
+          headEl.textContent = t('pinEnterTitle');
+          hintEl.textContent = t('pinEnterHint');
+        } else if (pinSetupState.step === 'confirm') {
+          headEl.textContent = t('pinConfirmTitle');
+          hintEl.textContent = t('pinConfirmHint');
+        } else {
+          headEl.textContent = t('pinCreateTitle');
+          hintEl.textContent = t('pinCreateHint');
+        }
       }
-      securityRefreshUi();
+
+      if (dotsEl) {
+        const n = Math.min(String(pinSetupState.input || '').length, 6);
+        dotsEl.innerHTML = '';
+        for (let i = 0; i < 6; i++) {
+          const d = document.createElement('div');
+          d.className = 'pin-dot' + (i < n ? ' filled' : '');
+          dotsEl.appendChild(d);
+        }
+      }
+    }
+
+    function pinSetupSetError(msg) {
+      const errEl = document.getElementById('pin-setup-error');
+      if (errEl) errEl.textContent = String(msg || '');
+    }
+
+    function pinSetupDigit(d) {
+      const digit = String(d);
+      if (!/^[0-9]$/.test(digit)) return;
+      pinSetupSetError('');
+      const cur = String(pinSetupState.input || '');
+      if (cur.length >= 12) return;
+      pinSetupState.input = cur + digit;
+      pinSetupRender();
+    }
+
+    function pinSetupBackspace() {
+      pinSetupSetError('');
+      pinSetupState.input = String(pinSetupState.input || '').slice(0, -1);
+      pinSetupRender();
+    }
+
+    function pinSetupClear() {
+      pinSetupSetError('');
+      pinSetupState.input = '';
+      pinSetupRender();
+    }
+
+    async function pinSetupOk() {
+      if (!window.isNativeApp) return;
+      const entered = String(pinSetupState.input || '').trim();
+      if (entered.length < 4) {
+        pinSetupSetError(t('pinTooShort'));
+        return;
+      }
+
+      if (pinSetupState.mode === 'disable') {
+        try {
+          showBlockingOverlay(t('disablePin'), '...');
+          const res = await nativeRequest('SECURITY_DISABLE_PIN', { pin: entered });
+          if (res && res.success === false) {
+            const code = String(res.error || '');
+            if (code === 'PIN_WRONG') pinSetupSetError(t('pinWrong'));
+            else if (code === 'PIN_REQUIRED') pinSetupSetError(t('pinRequired'));
+            else pinSetupSetError(code || 'Failed');
+            return;
+          }
+          showToast(t('pinDisabled'), 'success');
+          closePinSetup();
+          securityRefreshUi();
+        } catch (e) {
+          pinSetupSetError(String(e?.message || e || 'Failed'));
+        } finally {
+          try { hideBlockingOverlay(); } catch { }
+        }
+        return;
+      }
+
+      if (pinSetupState.step === 'create') {
+        pinSetupState.firstPin = entered;
+        pinSetupState.input = '';
+        pinSetupState.step = 'confirm';
+        pinSetupRender();
+        return;
+      }
+
+      if (entered !== String(pinSetupState.firstPin || '')) {
+        pinSetupSetError(t('pinMismatch'));
+        pinSetupState.input = '';
+        pinSetupRender();
+        return;
+      }
+
+      try {
+        showBlockingOverlay(t('setPin'), '...');
+        const res = await nativeRequest('SECURITY_SET_PIN', { pin: entered });
+        if (res && res.success === false) {
+          showToast(res.error || 'Failed', 'error');
+          return;
+        }
+        showToast(t('pinEnabled'), 'success');
+        closePinSetup();
+        securityRefreshUi();
+      } catch (e) {
+        showToast(String(e?.message || e || 'Failed'), 'error');
+      } finally {
+        try { hideBlockingOverlay(); } catch { }
+      }
     }
 
     async function securityDisablePin() {
       if (!window.isNativeApp) return;
-      const res = await nativeRequest('SECURITY_DISABLE_PIN', {});
-      if (res && res.success === false) {
-        showToast(res.error || 'Failed', 'error');
-      } else {
-        showToast(t('pinDisabled'), 'success');
-      }
-      securityRefreshUi();
+      openPinDisable();
     }
 
     async function securityToggleBiometric() {
@@ -2363,9 +2440,6 @@
           } else if (endpoint === '/clear-all' && options.method === 'POST') {
             type = 'CLEAR_ALL_DATA';
             payload = null;
-          } else if (endpoint === '/mock-data' && options.method === 'POST') {
-            type = 'SET_MOCK_DATA';
-            payload = JSON.parse(options.body);
           }
 
           const handler = (event) => {
@@ -2414,7 +2488,6 @@
       scheduleDebtReminder: (data) => API.fetch('/debt-reminders', { method: 'POST', body: JSON.stringify(data) }),
       cancelDebtReminder: (id) => API.fetch('/debt-reminders/' + encodeURIComponent(String(id)), { method: 'DELETE' }),
       clearAllData: () => API.fetch('/clear-all', { method: 'POST' }),
-      setMockData: (enabled) => API.fetch('/mock-data', { method: 'POST', body: JSON.stringify({ enabled: !!enabled }) }),
       openExternal: (url) => {
         if (window.isNativeApp && window.ReactNativeWebView) {
           window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'OPEN_EXTERNAL', payload: { url } }));
@@ -2478,18 +2551,18 @@
     };
 
     function handleBack() {
+      // AI history drawer
+      const aiHistory = document.getElementById('ai-history');
+      if (aiHistory && !aiHistory.classList.contains('hidden')) {
+        try { closeAiHistory(); } catch { }
+        return;
+      }
+
       if (document.getElementById('confirm-modal') && !document.getElementById('confirm-modal').classList.contains('hidden')) { closeConfirm(); return; }
-      if (document.getElementById('auth-modal') && !document.getElementById('auth-modal').classList.contains('hidden')) { closeAuthModal(); return; }
       if (document.getElementById('debt-details-modal') && !document.getElementById('debt-details-modal').classList.contains('hidden')) { closeDebtDetails(); return; }
       if (document.getElementById('transaction-details-modal') && !document.getElementById('transaction-details-modal').classList.contains('hidden')) { closeTransactionDetails(); return; }
       if (document.getElementById('transaction-modal') && !document.getElementById('transaction-modal').classList.contains('hidden')) { closeModal(); return; }
       if (document.getElementById('quick-add') && !document.getElementById('quick-add').classList.contains('hidden')) { closeQuickAdd(); return; }
-
-      const authScreen = document.getElementById('auth-screen');
-      if (authScreen && authScreen.classList.contains('active')) {
-        goBack();
-        return;
-      }
 
       const settings = document.getElementById('settings-screen');
       if (settings && settings.classList.contains('active')) {
@@ -2515,7 +2588,6 @@
       language: 'darija',
       currency: 'MAD',
       theme: 'system', // 'light' | 'dark' | 'system'
-      mockDataEnabled: false,
       pricingMode: 'unit',
       editingTxId: null,
       aiChat: [],
@@ -2566,13 +2638,6 @@
         exportData: 'حفظ نسخة',
         importData: 'استيراد',
         clearData: 'مسح كلشي',
-        enableMockData: 'زيد بيانات تجريبية',
-        disableMockData: 'حيد بيانات تجريبية',
-        mockEnableConfirm: 'غادي نزيدو بيانات تجريبية باش تجرّب التطبيق. تقدر تحيدهم من نفس الزر.',
-        mockDisableConfirm: 'غادي نحيدو غير البيانات التجريبية لي تزادت.',
-        mockAdded: 'تزادو بيانات تجريبية',
-        mockRemoved: 'تحيدو البيانات التجريبية',
-        mockNotAvailable: 'Mock data كاتخدم غير فالتطبيق (Mobile)',
         yesDelete: 'نعم، امسح',
         delete: 'حذف',
         cancel: 'لا، رجع',
@@ -2669,10 +2734,19 @@
         unitPrice: 'الثمن (للوحدة)',
         totalPrice: 'الثمن الإجمالي',
         unitModeHint: 'دخل ثمن الوحدة والعدد، والمجموع كيتحسب بوحدو.',
-        totalModeHint: 'دخل المجموع والعدد، وثمن الوحدة كيتحسب بوحدو.',
+        totalModeHint: 'دخل الثمن الإجمالي والعدد (المجموع ديال الوحدات).',
         quantityRequired: 'دخل العدد عافاك',
         unitPriceRequired: 'دخل ثمن الوحدة عافاك',
         totalPriceRequired: 'دخل المجموع عافاك',
+
+        aiGeminiKey: 'Gemini API Key',
+        aiGeminiKeyHint: 'كتخزن فهاتفك. خاصها باش يخدم AI.',
+        aiCheckingKey: 'كنتحقق من المفتاح…',
+        aiKeyValid: 'AI واجد وخدام ✅',
+        aiKeyInvalid: 'المفتاح ما خدامش',
+        aiKeyCheckFailed: 'ما قدرناش نتحققو (شوف الإنترنت)',
+        aiKeySaved: 'المفتاح مخزّن فهاتفك ✅',
+        aiChangeKey: 'بدّل المفتاح',
 
         // AI
         ai: 'AI',
@@ -2687,6 +2761,15 @@
         aiExamples: 'أمثلة',
         aiExamplesHint: 'ضغط على مثال باش يتكتب',
         aiReviewAndApply: '✅ كاين اقتراح للتغييرات. راجعو ومن بعد ضغط "تطبيق".',
+        aiApprovePlan: 'واش موافق على هاد الخطة؟ إلا موافق ضغط "تطبيق".',
+        aiApprovalHint: 'راجع الخطة ثم اضغط "تطبيق".',
+        aiShowJson: 'إظهار JSON',
+        aiHideJson: 'إخفاء JSON',
+        aiPlanIntro: 'هاشنو غادي ندير فالتطبيق:',
+        aiPlanSale: 'نضيف بيع',
+        aiPlanPurchase: 'نضيف شراء',
+        aiPlanStockAdjust: 'نبدّل المخزون',
+        aiPlanUnknown: 'نطبق تغيير',
         aiProposedChanges: 'التغييرات المقترحة',
         aiApply: 'تطبيق',
         aiPlanCanceled: 'تلغى الاقتراح',
@@ -2719,6 +2802,9 @@
         aiHintPurchases: 'المصاريف',
         aiHintAsk: 'تقدر تسولني:',
         aiHintApply: 'إلى بغيتي نطبّق تغييرات، قول: "طبّق" ولا "apply".',
+        aiHello: 'سلام',
+        aiHeroTitle: 'شنو نقدر نعاونك به اليوم؟',
+        aiAskPlaceholder: 'سول TIJARATI AI',
 
         // Installments
         installments: 'التقسيط',
@@ -2782,6 +2868,13 @@
         cloudStatusLocalItems: 'محلياً',
         cloudStatusPendingItems: 'مازال ما تدارش ليه النسخ',
 
+        cloudBackedUp: 'متدار ليه النسخ',
+        cloudNeedsBackup: 'خاصو النسخ',
+        cloudItemsLabel: 'عناصر',
+        cloudLastBackup: 'آخر نسخ',
+        cloudNoBackupYet: 'مازال ما كاين حتى نسخ',
+        cloudSignedOutHint: 'سجّل الدخول باش تدير النسخ الاحتياطي وتشوف الحالة',
+
         // Auth
         authTitle: 'تسجيل الدخول',
         email: 'البريد الإلكتروني',
@@ -2796,7 +2889,31 @@
         emailRequired: 'البريد الإلكتروني ضروري',
         resetSent: 'تصيفط إيميل ديال الاسترجاع',
         confirmPassword: 'تأكيد كلمة المرور',
-        passwordsDontMatch: 'كلمة المرور ماشي بحال بحال'
+        passwordsDontMatch: 'كلمة المرور ماشي بحال بحال',
+
+        // Security
+        security: 'الأمان',
+        securityHint: 'PIN + بصمة',
+        setPin: 'تعيين PIN',
+        disablePin: 'إلغاء PIN',
+        enableBiometric: 'تفعيل البصمة',
+        disableBiometric: 'إلغاء البصمة',
+        enterPin: 'دخل PIN (4 أرقام على الأقل)',
+        pinEnabled: 'PIN خدام',
+        pinDisabled: 'PIN مطفي',
+        biometricNotAvailable: 'البصمة ما كايناش فهاد الجهاز',
+
+        // PIN setup
+        pinCreateTitle: 'دير PIN جديد',
+        pinCreateHint: 'ختار 4 أرقام ولا كثر',
+        pinEnterTitle: 'دخل PIN ديالك',
+        pinEnterHint: 'كتب PIN باش نحيدو القفل',
+        pinConfirmTitle: 'أكد PIN',
+        pinConfirmHint: 'عاود كتب نفس PIN',
+        pinTooShort: 'PIN خاصو يكون 4 أرقام ولا كثر',
+        pinMismatch: 'PIN ما كيتطابقش',
+        pinWrong: 'PIN ماشي صحيح',
+        pinRequired: 'دخل PIN عافاك'
       },
       arabic: {
         appName: 'تجارتي',
@@ -2820,13 +2937,6 @@
         exportData: 'تصدير',
         importData: 'استيراد',
         clearData: 'مسح البيانات',
-        enableMockData: 'إضافة بيانات تجريبية',
-        disableMockData: 'حذف البيانات التجريبية',
-        mockEnableConfirm: 'سيتم إضافة بيانات تجريبية لاختبار التطبيق. يمكنك حذفها من نفس الزر.',
-        mockDisableConfirm: 'سيتم حذف البيانات التجريبية فقط.',
-        mockAdded: 'تمت إضافة بيانات تجريبية',
-        mockRemoved: 'تم حذف البيانات التجريبية',
-        mockNotAvailable: 'تعمل البيانات التجريبية في تطبيق الهاتف فقط',
         yesDelete: 'نعم، احذف',
         delete: 'حذف',
         cancel: 'إلغاء',
@@ -2910,10 +3020,19 @@
         unitPrice: 'السعر (للوحدة)',
         totalPrice: 'السعر الإجمالي',
         unitModeHint: 'أدخل سعر الوحدة والكمية، وسيُحسب المجموع تلقائياً.',
-        totalModeHint: 'أدخل المجموع والكمية، وسيُحسب سعر الوحدة تلقائياً.',
+        totalModeHint: 'أدخل السعر الإجمالي والكمية (إجمالي الوحدات).',
         quantityRequired: 'يرجى إدخال الكمية',
         unitPriceRequired: 'يرجى إدخال سعر الوحدة',
         totalPriceRequired: 'يرجى إدخال السعر الإجمالي',
+
+        aiGeminiKey: 'مفتاح Gemini API',
+        aiGeminiKeyHint: 'يُحفظ على جهازك. مطلوب لعمل الذكاء الاصطناعي.',
+        aiCheckingKey: 'جارٍ التحقق من المفتاح…',
+        aiKeyValid: 'الذكاء الاصطناعي جاهز ✅',
+        aiKeyInvalid: 'المفتاح لا يعمل',
+        aiKeyCheckFailed: 'تعذر التحقق (تحقق من الإنترنت)',
+        aiKeySaved: 'المفتاح محفوظ على جهازك ✅',
+        aiChangeKey: 'تغيير المفتاح',
 
         // AI
         ai: 'الذكاء',
@@ -2928,6 +3047,15 @@
         aiExamples: 'أمثلة',
         aiExamplesHint: 'اضغط على مثال لكتابته',
         aiReviewAndApply: '✅ لدي اقتراح تغييرات. راجعه ثم اضغط "تطبيق".',
+        aiApprovePlan: 'هل توافق على هذه الخطة؟ إذا نعم اضغط "تطبيق".',
+        aiApprovalHint: 'راجع الخطة ثم اضغط "تطبيق".',
+        aiShowJson: 'إظهار JSON',
+        aiHideJson: 'إخفاء JSON',
+        aiPlanIntro: 'هذا ما سأفعله داخل التطبيق:',
+        aiPlanSale: 'إضافة بيع',
+        aiPlanPurchase: 'إضافة شراء',
+        aiPlanStockAdjust: 'تعديل المخزون',
+        aiPlanUnknown: 'تطبيق تغيير',
         aiProposedChanges: 'التغييرات المقترحة',
         aiApply: 'تطبيق',
         aiPlanCanceled: 'تم إلغاء الاقتراح',
@@ -2960,6 +3088,9 @@
         aiHintPurchases: 'المصاريف',
         aiHintAsk: 'يمكنك أن تسأل:',
         aiHintApply: 'إذا أردت تطبيق تغييرات قل: "طبّق" أو "apply".',
+        aiHello: 'مرحباً',
+        aiHeroTitle: 'كيف يمكنني مساعدتك اليوم؟',
+        aiAskPlaceholder: 'اسأل TIJARATI AI',
 
         // Installments
         installments: 'التقسيط',
@@ -3023,6 +3154,13 @@
         cloudStatusLocalItems: 'محلياً',
         cloudStatusPendingItems: 'غير منسوخ بعد',
 
+        cloudBackedUp: 'تم نسخه',
+        cloudNeedsBackup: 'غير منسوخ بعد',
+        cloudItemsLabel: 'عناصر',
+        cloudLastBackup: 'آخر نسخة',
+        cloudNoBackupYet: 'لا توجد نسخة بعد',
+        cloudSignedOutHint: 'سجّل الدخول لعمل نسخ احتياطي ورؤية الحالة',
+
         // Auth
         authTitle: 'تسجيل الدخول',
         email: 'البريد الإلكتروني',
@@ -3037,7 +3175,31 @@
         emailRequired: 'البريد الإلكتروني مطلوب',
         resetSent: 'تم إرسال رابط الاسترجاع',
         confirmPassword: 'تأكيد كلمة المرور',
-        passwordsDontMatch: 'كلمتا المرور غير متطابقتين'
+        passwordsDontMatch: 'كلمتا المرور غير متطابقتين',
+
+        // Security
+        security: 'الأمان',
+        securityHint: 'PIN + بصمة',
+        setPin: 'تعيين PIN',
+        disablePin: 'إلغاء PIN',
+        enableBiometric: 'تفعيل البصمة',
+        disableBiometric: 'إلغاء البصمة',
+        enterPin: 'أدخل PIN (4 أرقام على الأقل)',
+        pinEnabled: 'تم تفعيل PIN',
+        pinDisabled: 'تم إلغاء PIN',
+        biometricNotAvailable: 'البصمة غير متاحة على هذا الجهاز',
+
+        // PIN setup
+        pinCreateTitle: 'تعيين PIN جديد',
+        pinCreateHint: 'اختر 4 أرقام أو أكثر',
+        pinEnterTitle: 'أدخل PIN الحالي',
+        pinEnterHint: 'أدخل PIN لتعطيل القفل',
+        pinConfirmTitle: 'تأكيد PIN',
+        pinConfirmHint: 'أعد إدخال نفس PIN',
+        pinTooShort: 'PIN يجب أن يكون 4 أرقام على الأقل',
+        pinMismatch: 'PIN غير متطابق',
+        pinWrong: 'الـ PIN غير صحيح',
+        pinRequired: 'يرجى إدخال PIN'
       },
       french: {
         appName: 'TIJARATI',
@@ -3061,13 +3223,6 @@
         exportData: 'Exporter',
         importData: 'Importer',
         clearData: 'Tout effacer',
-        enableMockData: 'Ajouter des données test',
-        disableMockData: 'Supprimer les données test',
-        mockEnableConfirm: "Ajouter des données de test pour essayer l'app. Vous pourrez les supprimer via le même bouton.",
-        mockDisableConfirm: 'Supprimer uniquement les données de test ajoutées.',
-        mockAdded: 'Données test ajoutées',
-        mockRemoved: 'Données test supprimées',
-        mockNotAvailable: 'Les données test ne sont dispo que sur mobile',
         yesDelete: 'Oui, supprimer',
         delete: 'Supprimer',
         cancel: 'Annuler',
@@ -3151,10 +3306,19 @@
         unitPrice: 'Prix (unité)',
         totalPrice: 'Prix total',
         unitModeHint: 'Prix unitaire + quantité → total automatique.',
-        totalModeHint: 'Total + quantité → prix unitaire automatique.',
+        totalModeHint: 'Prix total + nombre total d’unités.',
         quantityRequired: 'Veuillez saisir la quantité',
         unitPriceRequired: 'Veuillez saisir le prix unitaire',
         totalPriceRequired: 'Veuillez saisir le prix total',
+
+        aiGeminiKey: 'Clé API Gemini',
+        aiGeminiKeyHint: 'Enregistrée sur votre appareil. Requise pour l’IA.',
+        aiCheckingKey: 'Vérification de la clé…',
+        aiKeyValid: 'IA prête ✅',
+        aiKeyInvalid: 'Clé invalide',
+        aiKeyCheckFailed: 'Impossible de vérifier (internet)',
+        aiKeySaved: 'Clé enregistrée sur votre appareil ✅',
+        aiChangeKey: 'Changer la clé',
 
         // AI
         ai: 'IA',
@@ -3169,6 +3333,15 @@
         aiExamples: 'Exemples',
         aiExamplesHint: 'Touchez un exemple pour le coller',
         aiReviewAndApply: '✅ Un plan est prêt. Vérifiez puis cliquez "Appliquer".',
+        aiApprovePlan: 'Approuvez-vous ce plan ? Si oui, cliquez sur « Appliquer ».',
+        aiApprovalHint: 'Vérifiez le plan puis cliquez « Appliquer ».',
+        aiShowJson: 'Afficher JSON',
+        aiHideJson: 'Masquer JSON',
+        aiPlanIntro: 'Voici ce que je vais faire dans l’application :',
+        aiPlanSale: 'Ajouter une vente',
+        aiPlanPurchase: 'Ajouter un achat',
+        aiPlanStockAdjust: 'Ajuster le stock',
+        aiPlanUnknown: 'Appliquer un changement',
         aiProposedChanges: 'Changements proposés',
         aiApply: 'Appliquer',
         aiPlanCanceled: 'Plan annulé',
@@ -3201,6 +3374,9 @@
         aiHintPurchases: 'Dépenses',
         aiHintAsk: 'Vous pouvez demander:',
         aiHintApply: 'Pour appliquer des changements, dites: "apply" / "appliquer".',
+        aiHello: 'Salut',
+        aiHeroTitle: "Comment puis-je t'aider aujourd'hui ?",
+        aiAskPlaceholder: 'Demander à TIJARATI AI',
 
         // Installments
         installments: 'Paiement en versements',
@@ -3257,6 +3433,13 @@
         cloudStatusLocalItems: 'Local',
         cloudStatusPendingItems: 'Non sauvegardé',
 
+        cloudBackedUp: 'Sauvegardé',
+        cloudNeedsBackup: 'À sauvegarder',
+        cloudItemsLabel: 'éléments',
+        cloudLastBackup: 'Dernière sauvegarde',
+        cloudNoBackupYet: 'Aucune sauvegarde pour l’instant',
+        cloudSignedOutHint: 'Connectez-vous pour sauvegarder et voir le statut',
+
         // Auth
         authTitle: 'Connexion',
         email: 'E-mail',
@@ -3271,7 +3454,31 @@
         emailRequired: 'E-mail requis',
         resetSent: 'E-mail de réinitialisation envoyé',
         confirmPassword: 'Confirmer le mot de passe',
-        passwordsDontMatch: 'Les mots de passe ne correspondent pas'
+        passwordsDontMatch: 'Les mots de passe ne correspondent pas',
+
+        // Security
+        security: 'Sécurité',
+        securityHint: 'PIN + empreinte',
+        setPin: 'Définir PIN',
+        disablePin: 'Désactiver PIN',
+        enableBiometric: 'Activer empreinte',
+        disableBiometric: 'Désactiver empreinte',
+        enterPin: 'Entrer PIN (min 4 chiffres)',
+        pinEnabled: 'PIN activé',
+        pinDisabled: 'PIN désactivé',
+        biometricNotAvailable: "Empreinte indisponible sur cet appareil",
+
+        // PIN setup
+        pinCreateTitle: 'Créer un nouveau PIN',
+        pinCreateHint: 'Choisissez 4 chiffres ou plus',
+        pinEnterTitle: 'Entrer votre PIN',
+        pinEnterHint: 'Entrez le PIN pour désactiver le verrouillage',
+        pinConfirmTitle: 'Confirmer le PIN',
+        pinConfirmHint: 'Ressaisissez le même PIN',
+        pinTooShort: 'Le PIN doit avoir au moins 4 chiffres',
+        pinMismatch: 'PIN non identique',
+        pinWrong: 'PIN incorrect',
+        pinRequired: 'Veuillez entrer le PIN'
       },
       english: {
         appName: 'TIJARATI',
@@ -3295,13 +3502,6 @@
         exportData: 'Export',
         importData: 'Import',
         clearData: 'Clear data',
-        enableMockData: 'Enable mock data',
-        disableMockData: 'Disable mock data',
-        mockEnableConfirm: 'This will add sample data for testing. You can remove it using the same button.',
-        mockDisableConfirm: 'This will remove only the sample data that was added.',
-        mockAdded: 'Mock data added',
-        mockRemoved: 'Mock data removed',
-        mockNotAvailable: 'Mock data is available in the mobile app only',
         yesDelete: 'Yes, delete',
         delete: 'Delete',
         cancel: 'Cancel',
@@ -3385,10 +3585,19 @@
         unitPrice: 'Unit price',
         totalPrice: 'Total price',
         unitModeHint: 'Unit price + quantity → total auto.',
-        totalModeHint: 'Total + quantity → unit price auto.',
+        totalModeHint: 'Enter your total price + total units.',
         quantityRequired: 'Please enter quantity',
         unitPriceRequired: 'Please enter unit price',
         totalPriceRequired: 'Please enter total price',
+
+        aiGeminiKey: 'Gemini API Key',
+        aiGeminiKeyHint: 'Saved on your device. Needed for AI to work.',
+        aiCheckingKey: 'Checking key…',
+        aiKeyValid: 'AI is ready ✅',
+        aiKeyInvalid: 'Key not working',
+        aiKeyCheckFailed: 'Could not verify (check internet)',
+        aiKeySaved: 'API key saved ✅',
+        aiChangeKey: 'Change key',
 
         // AI
         ai: 'AI',
@@ -3403,6 +3612,15 @@
         aiExamples: 'Examples',
         aiExamplesHint: 'Tap an example to paste',
         aiReviewAndApply: '✅ I prepared a change plan. Review it, then tap “Apply”.',
+        aiApprovePlan: 'Do you approve this plan? If yes, tap “Apply”.',
+        aiApprovalHint: 'Review the plan, then tap “Apply”.',
+        aiShowJson: 'Show JSON',
+        aiHideJson: 'Hide JSON',
+        aiPlanIntro: 'Here is what I will do in the app:',
+        aiPlanSale: 'Add a sale',
+        aiPlanPurchase: 'Add a purchase',
+        aiPlanStockAdjust: 'Adjust stock',
+        aiPlanUnknown: 'Apply a change',
         aiProposedChanges: 'Proposed changes',
         aiApply: 'Apply',
         aiPlanCanceled: 'Plan canceled',
@@ -3435,6 +3653,9 @@
         aiHintPurchases: 'Expenses',
         aiHintAsk: 'You can ask:',
         aiHintApply: 'If you want me to change data, say “apply” and describe what happened.',
+        aiHello: 'Hi',
+        aiHeroTitle: 'How can I help you today?',
+        aiAskPlaceholder: 'Ask TIJARATI AI',
 
         // Installments
         installments: 'Installments',
@@ -3505,6 +3726,13 @@
         cloudStatusLocalItems: 'Local data',
         cloudStatusPendingItems: 'Not backed up yet',
 
+        cloudBackedUp: 'Backed up',
+        cloudNeedsBackup: 'Needs backup',
+        cloudItemsLabel: 'items',
+        cloudLastBackup: 'Last backup',
+        cloudNoBackupYet: 'No backup yet',
+        cloudSignedOutHint: 'Sign in to back up and see status',
+
         // Auth
         authTitle: 'Sign in',
         email: 'Email',
@@ -3531,7 +3759,19 @@
         enterPin: 'Enter PIN (min 4 digits)',
         pinEnabled: 'PIN is enabled',
         pinDisabled: 'PIN is disabled',
-        biometricNotAvailable: 'Fingerprint not available on this device'
+        biometricNotAvailable: 'Fingerprint not available on this device',
+
+        // PIN setup
+        pinCreateTitle: 'Set a new PIN',
+        pinCreateHint: 'Choose 4+ digits',
+        pinEnterTitle: 'Enter your PIN',
+        pinEnterHint: 'Enter PIN to disable the lock',
+        pinConfirmTitle: 'Confirm PIN',
+        pinConfirmHint: 'Re-enter the same PIN',
+        pinTooShort: 'PIN must be at least 4 digits',
+        pinMismatch: 'PIN does not match',
+        pinWrong: 'Wrong PIN',
+        pinRequired: 'PIN is required'
       }
     };
 
@@ -3543,6 +3783,15 @@
     }
 
     function clamp(n, min, max) { return Math.max(min, Math.min(max, n)); }
+
+    function toLatinDigits(input) {
+      const s = String(input ?? '');
+      // Arabic-Indic: \u0660-\u0669 (٠١٢٣٤٥٦٧٨٩)
+      // Eastern Arabic-Indic: \u06F0-\u06F9 (۰۱۲۳۴۵۶۷۸۹)
+      return s
+        .replace(/[\u0660-\u0669]/g, (d) => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)))
+        .replace(/[\u06F0-\u06F9]/g, (d) => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d)));
+    }
 
     function baseFromCurrentCurrency(amountInSelectedCurrency) {
       const rate = exchangeRates[state.currency] || 1;
@@ -3559,9 +3808,9 @@
       const value = baseAmount * rate;
       const locale = state.language === 'english' ? 'en' : (state.language === 'french' ? 'fr' : 'ar-MA');
       try {
-        return new Intl.NumberFormat(locale, { maximumFractionDigits: 2 }).format(value);
+        return toLatinDigits(new Intl.NumberFormat(locale, { maximumFractionDigits: 2 }).format(value));
       } catch {
-        return (value || 0).toFixed(2);
+        return toLatinDigits((value || 0).toFixed(2));
       }
     }
 
@@ -3598,7 +3847,6 @@
         try { delete state.aiEnabled; } catch { }
       }
       if (!state.theme) state.theme = 'system';
-      if (typeof state.mockDataEnabled !== 'boolean') state.mockDataEnabled = false;
       if (typeof state.localRevision !== 'number') state.localRevision = 0;
       if (typeof state.lastLocalChangeAt !== 'number') state.lastLocalChangeAt = 0;
       if (typeof state.lastBackup !== 'object') state.lastBackup = null;
@@ -3609,7 +3857,6 @@
         language: state.language,
         currency: state.currency,
         theme: state.theme,
-        mockDataEnabled: state.mockDataEnabled,
         pricingMode: state.pricingMode,
         aiChat: state.aiChat,
         aiConversations: state.aiConversations,
@@ -3627,29 +3874,6 @@
     function touchLocalChange() {
       state.localRevision = (typeof state.localRevision === 'number' ? state.localRevision : 0) + 1;
       state.lastLocalChangeAt = Date.now();
-    }
-
-    function updateMockDataButton() {
-      const btn = document.getElementById('settings-mock-data');
-      const label = document.getElementById('settings-mock-label');
-      if (!btn || !label) return;
-
-      const enabled = !!state.mockDataEnabled;
-      label.textContent = enabled ? t('disableMockData') : t('enableMockData');
-
-      // Visual hint: warn when enabled (so user knows it’s test mode)
-      btn.style.background = enabled
-        ? 'color-mix(in srgb, var(--danger) 10%, var(--surface))'
-        : 'color-mix(in srgb, var(--warn) 10%, var(--surface))';
-      btn.style.border = enabled
-        ? '1px solid color-mix(in srgb, var(--danger) 18%, var(--border))'
-        : '1px solid color-mix(in srgb, var(--warn) 18%, var(--border))';
-      btn.style.color = enabled
-        ? 'color-mix(in srgb, var(--danger) 92%, var(--fg))'
-        : 'color-mix(in srgb, var(--warn) 92%, var(--fg))';
-
-      btn.onclick = toggleMockData;
-      lucide.createIcons();
     }
 
     // ==========================
@@ -3723,6 +3947,8 @@
       if (hs) hs.placeholder = t('search');
       const ds = document.getElementById('debts-search');
       if (ds) ds.placeholder = t('searchDebts');
+      const aiInput = document.getElementById('ai-chat-input');
+      if (aiInput) aiInput.placeholder = t('aiAskPlaceholder') || 'Ask AI';
 
       document.querySelectorAll('.lang-btn').forEach(btn => {
         const active = btn.dataset.lang === state.language;
@@ -3732,7 +3958,6 @@
       });
 
       updateDateHeader();
-      updateMockDataButton();
     }
 
     function setLanguage(lang) {
@@ -3812,114 +4037,106 @@
       showScreen('settings-screen', { push: true });
       try { securityRefreshUi(); } catch { }
       try { Cloud.updateUi(); } catch { }
-      try { cloudRefreshStatus(); } catch { }
+      try { refreshAiSettingsUi(); } catch { }
     }
 
     function closeSettings() {
       goBack();
     }
 
-    // ==========================
-    // Auth (Full-page)
-    // ==========================
-    let authScreenMode = 'signin';
+    async function refreshAiSettingsUi() {
+      const card = document.getElementById('settings-ai-card');
+      if (!card) return;
+      card.classList.toggle('hidden', !window.isNativeApp);
+      if (!window.isNativeApp) return;
 
-    function openAuthScreen() {
-      const current = document.querySelector('.screen.active');
-      if (current && current.id && current.id !== 'auth-screen') {
-        // Push even if current is settings-screen.
-        navStack.push(current.id);
-      }
-      showScreen('auth-screen', { push: false });
-      setAuthScreenMode('signin');
-      updateAuthScreenUi();
-      setTimeout(() => {
-        const email = document.getElementById('auth-screen-email');
-        if (email) email.focus();
-      }, 80);
-    }
+      const statusEl = document.getElementById('settings-ai-status');
+      if (statusEl) statusEl.textContent = '';
 
-    function setAuthScreenMode(mode) {
-      authScreenMode = (mode === 'signup') ? 'signup' : 'signin';
-      updateAuthScreenUi();
-    }
+      const entry = document.getElementById('settings-gemini-entry');
+      const saved = document.getElementById('settings-gemini-saved');
+      const showEntry = (v) => {
+        if (entry) entry.classList.toggle('hidden', !v);
+        if (saved) saved.classList.toggle('hidden', v);
+      };
 
-    function updateAuthScreenUi() {
-      const signInTab = document.getElementById('auth-tab-signin');
-      const signUpTab = document.getElementById('auth-tab-signup');
-      const confirmWrap = document.getElementById('auth-screen-confirm-wrap');
-      const primaryText = document.getElementById('auth-screen-primary-text');
-      const status = document.getElementById('auth-screen-status');
-      const signOutBtn = document.getElementById('auth-screen-signout');
-
-      const isSignUp = authScreenMode === 'signup';
-
-      if (signInTab) {
-        signInTab.style.background = !isSignUp ? 'linear-gradient(135deg, var(--primary), var(--primary-2))' : 'transparent';
-        signInTab.style.color = !isSignUp ? '#fff' : 'var(--muted)';
-      }
-      if (signUpTab) {
-        signUpTab.style.background = isSignUp ? 'linear-gradient(135deg, var(--primary), var(--primary-2))' : 'transparent';
-        signUpTab.style.color = isSignUp ? '#fff' : 'var(--muted)';
-      }
-      if (confirmWrap) confirmWrap.classList.toggle('hidden', !isSignUp);
-      if (primaryText) primaryText.textContent = isSignUp ? (t('signUp') || 'Sign up') : (t('signIn') || 'Sign in');
-
-      if (status) {
-        if (Cloud.user) status.textContent = `${t('cloudStatusSignedIn') || 'Signed in'}${Cloud.user.email ? ' • ' + Cloud.user.email : ''}`;
-        else status.textContent = t('cloudStatusSignedOut') || '';
-      }
-
-      if (signOutBtn) signOutBtn.classList.toggle('hidden', !Cloud.user);
-      try { lucide.createIcons(); } catch { }
-    }
-
-    async function authScreenPrimary() {
       try {
-        if (!window.firebase || !firebase.auth) throw new Error('Firebase not available');
-        const email = (document.getElementById('auth-screen-email')?.value || '').trim();
-        const pass = (document.getElementById('auth-screen-password')?.value || '').trim();
-        const confirm = (document.getElementById('auth-screen-confirm')?.value || '').trim();
-        if (!email || !pass) {
-          showToast(t('fillAll'), 'error');
-          return;
-        }
-
-        if (authScreenMode === 'signup') {
-          if (pass.length < 6) {
-            showToast(t('passwordMin') || 'Password must be at least 6 characters', 'error');
-            return;
-          }
-          if (confirm && confirm !== pass) {
-            showToast(t('passwordsDontMatch') || 'Passwords do not match', 'error');
-            return;
-          }
-          await firebase.auth().createUserWithEmailAndPassword(email, pass);
-          showToast(t('accountCreated') || 'Account created', 'success');
+        const s = await aiNativeRequest('AI_STATUS', {});
+        if (s && s.success && s.enabled) {
+          if (statusEl) statusEl.textContent = (t('aiOnline') || 'Online');
+          showEntry(false);
+        } else if (s && s.success && s.reason === 'missing_api_key') {
+          if (statusEl) statusEl.textContent = (t('aiKeyMissing') || 'AI key missing');
+          showEntry(true);
         } else {
-          await firebase.auth().signInWithEmailAndPassword(email, pass);
-          showToast(t('signedIn') || 'Signed in', 'success');
+          if (statusEl) statusEl.textContent = (t('aiOffline') || 'Offline');
+          showEntry(true);
         }
-
-        updateAuthScreenUi();
-        goBack();
-      } catch (e) {
-        showToast(String(e?.message || e || 'Auth failed'), 'error');
+      } catch {
+        if (statusEl) statusEl.textContent = (t('aiOffline') || 'Offline');
+        showEntry(true);
       }
     }
 
-    async function authScreenReset() {
-      try {
-        if (!window.firebase || !firebase.auth) throw new Error('Firebase not available');
-        const email = (document.getElementById('auth-screen-email')?.value || '').trim();
-        if (!email) {
-          showToast(t('emailRequired') || 'Email is required', 'error');
-          return;
+    function showGeminiKeyEntry() {
+      const entry = document.getElementById('settings-gemini-entry');
+      const saved = document.getElementById('settings-gemini-saved');
+      if (entry) entry.classList.remove('hidden');
+      if (saved) saved.classList.add('hidden');
+      const input = document.getElementById('settings-gemini-key');
+      try { if (input) input.focus(); } catch { }
+    }
+
+    async function saveGeminiKeyFromSettings() {
+      if (!window.isNativeApp) return;
+      const input = document.getElementById('settings-gemini-key');
+      const key = String(input?.value || '').trim();
+      if (!key) {
+        showToast(t('aiKeyMissing') || 'AI key missing', 'error');
+        return;
+      }
+
+      const statusEl = document.getElementById('settings-ai-status');
+      if (statusEl) statusEl.textContent = (t('aiCheckingKey') || 'Checking…');
+
+      const r = await aiNativeRequest('AI_SET_GEMINI_KEY', { key });
+      if (r && r.success) {
+        // Verify the key works by sending a tiny test request.
+        try {
+          const test = await aiNativeRequest('AI_GEMINI', {
+            message: 'Reply with exactly: OK',
+            lang: state.language || 'english',
+            summary: { test: true }
+          });
+          const ok = !!(test && test.success && String(test.reply || '').toUpperCase().includes('OK'));
+          if (ok) {
+            try { input.value = ''; } catch { }
+            showToast(t('aiKeyValid') || 'AI is ready', 'success');
+          } else {
+            const details = (test && (test.details || test.error)) ? String(test.details || test.error) : '';
+            showToast((t('aiKeyInvalid') || 'Key not working') + (details ? `: ${details}` : ''), 'error');
+          }
+        } catch {
+          showToast(t('aiKeyCheckFailed') || 'Could not verify key (check internet)', 'error');
         }
-        await firebase.auth().sendPasswordResetEmail(email);
-        showToast(t('resetSent') || 'Password reset email sent', 'success');
-      } catch (e) {
-        showToast(String(e?.message || e || 'Reset failed'), 'error');
+
+        try { refreshAiSettingsUi(); } catch { }
+        try { askAiStatusForUi(); } catch { }
+      } else {
+        showToast((r && (r.error || r.message)) ? String(r.error || r.message) : 'Failed', 'error');
+        try { refreshAiSettingsUi(); } catch { }
+      }
+    }
+
+    async function clearGeminiKeyFromSettings() {
+      if (!window.isNativeApp) return;
+      const r = await aiNativeRequest('AI_CLEAR_GEMINI_KEY', {});
+      if (r && r.success) {
+        showToast(t('cleared') || t('clear') || 'Cleared', 'success');
+        try { refreshAiSettingsUi(); } catch { }
+        try { askAiStatusForUi(); } catch { }
+      } else {
+        showToast((r && (r.error || r.message)) ? String(r.error || r.message) : 'Failed', 'error');
       }
     }
 
@@ -3992,13 +4209,45 @@
       }
     }
 
+    async function aiNativeRequest(type, payload) {
+      try {
+        if (window && typeof window.__TIJARATI_NATIVE_REQUEST__ === 'function') {
+          return await window.__TIJARATI_NATIVE_REQUEST__(type, payload);
+        }
+      } catch { }
+      return { success: false, error: 'Native request unavailable' };
+    }
+
     function updateAiUi() {
       renderAiPlan();
       renderAiChat();
       renderAiShortcuts();
     }
 
+    function aiGetUserNameForHero() {
+      try {
+        const name = (window.Cloud && Cloud.user)
+          ? String(Cloud.user.displayName || Cloud.user.email || '').trim()
+          : '';
+        if (!name) return '';
+        const base = name.includes('@') ? name.split('@')[0] : name;
+        const first = base.split(/[\s._-]+/).filter(Boolean)[0] || base;
+        return first.slice(0, 1).toUpperCase() + first.slice(1);
+      } catch {
+        return '';
+      }
+    }
+
+    function renderAiHeaderAvatar() {
+      const el = document.getElementById('ai-avatar-initial');
+      if (!el) return;
+      const name = aiGetUserNameForHero();
+      const initial = name ? name[0] : 'A';
+      el.textContent = initial.toUpperCase();
+    }
+
     function renderAiScreen() {
+      renderAiHeaderAvatar();
       updateAiUi();
       try {
         askAiStatusForUi();
@@ -4012,28 +4261,15 @@
       try {
         const proto = (window.location && window.location.protocol) ? window.location.protocol : '';
         if (proto === 'file:') {
-          const base = aiGetRemoteBaseUrl();
-          if (!base) {
-            statusEl.textContent = (t('aiLocal') || 'Local mode');
-            return;
-          }
-
-          const statusResp = await fetch(`${base}/api/ai/status`, { method: 'GET' });
-          if (!statusResp.ok) {
-            statusEl.textContent = (t('aiServerOffline') || t('aiOffline') || 'Offline');
-            return;
-          }
-
-          const status = await statusResp.json();
-          if (status?.enabled) {
+          // Mobile WebView: prefer native Gemini (no server).
+          const s = await aiNativeRequest('AI_STATUS', {});
+          if (s && s.success && s.enabled) {
             statusEl.textContent = (t('aiOnline') || 'Online');
-            return;
-          }
-          if (status?.reason === 'missing_api_key') {
+          } else if (s && s.success && s.reason === 'missing_api_key') {
             statusEl.textContent = (t('aiKeyMissing') || 'AI key missing');
-            return;
+          } else {
+            statusEl.textContent = (t('aiOffline') || 'Offline');
           }
-          statusEl.textContent = (t('aiOffline') || 'Offline');
           return;
         }
         const statusResp = await fetch('/api/ai/status', { method: 'GET' });
@@ -4066,21 +4302,37 @@
       const box = document.getElementById('ai-chat-messages');
       if (!box) return;
 
+      const hero = document.getElementById('ai-hero');
+
       const items = aiGetActiveMessages();
       if (items.length === 0) {
-        box.innerHTML = `<div class="text-xs font-bold" style="color: var(--muted);">${escapeHtml(t('aiEmpty'))}</div>`;
+        if (hero) {
+          const name = aiGetUserNameForHero();
+          const hi = name ? `Hi ${escapeHtml(name)}` : (escapeHtml(t('aiHello') || 'Hi'));
+          const title = escapeHtml(t('aiHeroTitle') || "How can I help you today?");
+          hero.innerHTML = `
+            <div class="ai-hero-hi">${hi}</div>
+            <div class="ai-hero-title">${title}</div>
+          `;
+        }
+        box.innerHTML = '';
         renderAiShortcuts();
+        try { lucide.createIcons(); } catch { }
         return;
       }
 
+      if (hero) hero.innerHTML = '';
+
       box.innerHTML = items.map(m => {
         const isUser = m.role === 'user';
-        const bg = isUser ? 'color-mix(in srgb, var(--primary) 14%, var(--surface))' : 'var(--surface)';
-        const border = isUser ? 'color-mix(in srgb, var(--primary) 24%, var(--border))' : 'var(--border)';
         const align = isUser ? 'ml-auto' : 'mr-auto';
+        const isThinking = !isUser && !!m.thinking;
         return `
-          <div class="max-w-[90%] ${align} rounded-2xl p-3" style="background: ${bg}; border: 1px solid ${border};">
-            <div class="text-sm font-bold" style="white-space: pre-wrap;">${escapeHtml(m.text || '')}</div>
+          <div class="max-w-[92%] ${align} ai-bubble ${isUser ? 'user' : 'assistant'}">
+            ${isThinking
+              ? '<div class="ai-typing" aria-label="Thinking"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>'
+              : `<div class="text-sm font-bold" style="white-space: pre-wrap;">${escapeHtml(m.text || '')}</div>`
+            }
           </div>
         `;
       }).join('');
@@ -4093,20 +4345,40 @@
       aiClearCurrentChat();
     }
 
+    let aiSending = false;
+
     async function sendAiChat() {
       const input = document.getElementById('ai-chat-input');
-      const msg = (input?.value || '').trim();
+      const sendBtn = document.getElementById('ai-send-btn');
+      const msg = toLatinDigits((input?.value || '')).trim();
       if (!msg) return;
+
+      if (aiSending) return;
+      aiSending = true;
+      try {
+        if (input) input.disabled = true;
+        if (sendBtn) sendBtn.disabled = true;
+      } catch { }
 
       aiEnsureConversation();
       const items = aiGetActiveMessages();
       items.push({ role: 'user', text: msg, at: Date.now() });
       aiMaybeSetConversationTitleFrom(msg);
       input.value = '';
+      try { aiAutosizeAiInput(input); } catch { }
+
+      const thinkingId = `thinking-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+      items.push({ id: thinkingId, role: 'assistant', text: '', thinking: true, at: Date.now() });
       saveState();
       renderAiChat();
 
-      const replyRaw = await askAiBackend(aiBuildBackendMessage(msg));
+      let replyRaw = '';
+      try {
+        replyRaw = await askAiBackend(aiBuildBackendMessage(msg));
+      } catch (e) {
+        replyRaw = String(e?.message || e || (t('aiError') || 'AI error'));
+      }
+
       const extracted = aiExtractActionPlan(replyRaw);
       if (extracted?.plan) {
         state.aiPendingPlan = {
@@ -4119,13 +4391,27 @@
         renderAiPlan();
       }
 
-      const assistantText = extracted?.plan
-        ? `${(extracted.cleanedText || extracted.plan.summary || '').trim()}\n\n${t('aiReviewAndApply')}`.trim()
-        : replyRaw;
+      let assistantText = replyRaw;
+      if (extracted?.plan) {
+        const cleaned = String(extracted.cleanedText || '').trim();
+        const explain = aiShouldUseModelPlanExplanation(cleaned) ? cleaned : aiExplainPlan(extracted.plan);
+        assistantText = `${explain}\n\n${t('aiApprovePlan') || (t('aiReviewAndApply') || 'Do you approve this plan? Tap Apply to continue.')}`.trim();
+      }
 
-      items.push({ role: 'assistant', text: assistantText || t('aiHelp'), at: Date.now() });
+      const idx = items.findIndex(x => x && x.id === thinkingId);
+      const finalMsg = { role: 'assistant', text: assistantText || t('aiHelp'), at: Date.now() };
+      if (idx >= 0) items[idx] = finalMsg;
+      else items.push(finalMsg);
+
       saveState();
       renderAiChat();
+
+      try {
+        if (input) input.disabled = false;
+        if (sendBtn) sendBtn.disabled = false;
+        if (input) input.focus();
+      } catch { }
+      aiSending = false;
     }
 
     function renderAiShortcuts() {
@@ -4141,23 +4427,27 @@
       const b3 = document.getElementById('ai-ex-3');
 
       if (b1) {
-        b1.textContent = t('aiExample1Label');
+        b1.innerHTML = `<i data-lucide="bar-chart-3" class="w-5 h-5"></i><strong>${escapeHtml(t('aiExample1Label'))}</strong>`;
         b1.onclick = () => aiUseExample(t('aiExample1Prompt'));
       }
       if (b2) {
-        b2.textContent = t('aiExample2Label');
+        b2.innerHTML = `<i data-lucide="help-circle" class="w-5 h-5"></i><strong>${escapeHtml(t('aiExample2Label'))}</strong>`;
         b2.onclick = () => aiUseExample(t('aiExample2Prompt'));
       }
       if (b3) {
-        b3.textContent = t('aiExample3Label');
+        b3.innerHTML = `<i data-lucide="sparkles" class="w-5 h-5"></i><strong>${escapeHtml(t('aiExample3Label'))}</strong>`;
         b3.onclick = () => aiUseExample(t('aiExample3Prompt'));
       }
+
+      try { lucide.createIcons(); } catch { }
     }
 
     function openAiHistory() {
       const el = document.getElementById('ai-history');
       if (!el) return;
       el.classList.remove('hidden');
+      // Allow transition to run.
+      requestAnimationFrame(() => el.classList.add('ai-history-open'));
       renderAiHistoryList();
       try { lucide.createIcons(); } catch { }
     }
@@ -4165,7 +4455,11 @@
     function closeAiHistory() {
       const el = document.getElementById('ai-history');
       if (!el) return;
-      el.classList.add('hidden');
+      el.classList.remove('ai-history-open');
+      // Hide after transition completes.
+      setTimeout(() => {
+        try { el.classList.add('hidden'); } catch { }
+      }, 220);
     }
 
     function aiEnsureConversation() {
@@ -4290,14 +4584,101 @@
         return;
       }
       input.value = text;
+      try { aiAutosizeAiInput(input); } catch { }
       // Don't auto-open keyboard.
+    }
+
+    function aiAutosizeAiInput(el) {
+      try {
+        const ta = el || document.getElementById('ai-chat-input');
+        if (!ta) return;
+        ta.style.height = 'auto';
+        const max = 160;
+        const next = Math.min(ta.scrollHeight || 0, max);
+        ta.style.height = (next > 0 ? next : 44) + 'px';
+      } catch { }
     }
 
     function aiBuildBackendMessage(userText) {
       const today = new Date().toISOString().slice(0, 10);
-      const schema = `If the user asks you to APPLY changes inside the app, respond with a JSON plan in a single fenced code block (\`\`\`json). The JSON MUST have: {"type":"tijarati_action_plan_v1","summary":"...","actions":[...]}.\nSupported actions:\n- {"action":"add_transaction","transaction":{"type":"sale"|"purchase","item":"...","quantity":number,"unitPrice":number? ,"totalPrice":number? ,"date":"YYYY-MM-DD"?}}\n- {"action":"stock_adjustment","item":"...","delta":number,"date":"YYYY-MM-DD"?}\nRules: use the app current currency (${state.currency}); keep numbers simple; do NOT apply automatically.\nIf the user greets (hi/hello), introduce yourself: who you are, your job in TIJARATI, and what you can do.\nFor normal questions, answer with helpful detail (not ultra-short) and include next-step suggestions when useful.`;
-      const context = `Context: today=${today}; currency=${state.currency}; pricingMode=${state.pricingMode || 'unit'}.`;
+      const symbol = currencySymbols[state.currency] || state.currency;
+      const schema = `If the user asks you to APPLY changes inside the app, respond with two parts:\n(1) A simple explanation in plain language (what you will do step-by-step) ending with a short approval question.\n(2) A JSON plan in a single fenced code block (\`\`\`json). The JSON MUST have: {"type":"tijarati_action_plan_v1","summary":"...","actions":[...]}\nSupported actions:\n- {"action":"add_transaction","transaction":{"type":"sale"|"purchase","item":"...","quantity":number,"unitPrice":number? ,"totalPrice":number? ,"date":"YYYY-MM-DD"?}}\n- {"action":"stock_adjustment","item":"...","delta":number,"date":"YYYY-MM-DD"?}\nRules: use the app current currency (${state.currency}) and its symbol (${symbol}); keep numbers simple; do NOT apply automatically; do NOT print raw JSON outside the code block.\nIf the user greets (hi/hello), introduce yourself: who you are, your job in TIJARATI, and what you can do.\nFor normal questions, answer with helpful detail (not ultra-short) and include next-step suggestions when useful. When you mention any amounts, use ${state.currency} (${symbol}) unless the user explicitly asks for another currency.`;
+      const context = `Context: today=${today}; currency=${state.currency}; currencySymbol=${symbol}; pricingMode=${state.pricingMode || 'unit'}.`;
       return `${userText}\n\n---\n${schema}\n${context}`;
+    }
+
+    function aiShouldUseModelPlanExplanation(cleanedText) {
+      const text = String(cleanedText || '').trim();
+      if (!text) return false;
+      if (text.length < 40) return false;
+      if (text.includes('```')) return false;
+      if (/[:\-–—]\s*$/.test(text)) return false;
+      const last = text.slice(-1);
+      const endsNaturally = /[.!?…)]/.test(last);
+      if (!endsNaturally && text.length < 120) return false;
+      return true;
+    }
+
+    function aiExplainPlan(plan) {
+      try {
+        const p = plan || {};
+        const actions = Array.isArray(p.actions) ? p.actions : [];
+        const sym = currencySymbols[state.currency] || state.currency;
+        const lines = [];
+        lines.push(t('aiPlanIntro') || 'Here is what I will do in the app:');
+
+        for (const a of actions) {
+          const kind = String(a?.action || '');
+          if (kind === 'add_transaction') {
+            const tx = a.transaction || {};
+            const type = String(tx.type || '').toLowerCase();
+            const item = String(tx.item || '').trim();
+            const qty = Number(tx.quantity);
+            const total = (tx.totalPrice !== undefined && tx.totalPrice !== null) ? Number(tx.totalPrice) : null;
+            const unit = (tx.unitPrice !== undefined && tx.unitPrice !== null) ? Number(tx.unitPrice) : null;
+
+            const priceText = (isFinite(total) && total !== null)
+              ? `${toLatinDigits(String(Math.round(total * 100) / 100))} ${sym}`
+              : (isFinite(unit) && unit !== null)
+                ? `${toLatinDigits(String(Math.round(unit * 100) / 100))} ${sym} / unit`
+                : `${toLatinDigits('0')} ${sym}`;
+
+            const qtyText = isFinite(qty) ? toLatinDigits(String(qty)) : '';
+            const label = (type === 'sale') ? (t('aiPlanSale') || 'Add a sale') : (t('aiPlanPurchase') || 'Add a purchase');
+            lines.push(`- ${label}: ${item || (t('item') || 'Item')} ${qtyText ? `• x${qtyText}` : ''} • ${priceText}`.trim());
+            continue;
+          }
+
+          if (kind === 'stock_adjustment') {
+            const item = String(a.item || '').trim();
+            const delta = Number(a.delta);
+            const deltaText = isFinite(delta) ? toLatinDigits(String(delta)) : '';
+            lines.push(`- ${(t('aiPlanStockAdjust') || 'Adjust stock')}: ${item || (t('item') || 'Item')} ${deltaText ? `(${deltaText})` : ''}`.trim());
+            continue;
+          }
+
+          lines.push(`- ${(t('aiPlanUnknown') || 'Apply a change')}`);
+        }
+
+        return lines.join('\n');
+      } catch {
+        return (plan && plan.summary) ? String(plan.summary) : (t('aiReviewAndApply') || 'I prepared a plan.');
+      }
+    }
+
+    function aiTogglePlanJson() {
+      const pre = document.getElementById('ai-plan-json');
+      if (!pre) return;
+      const wasHidden = pre.classList.contains('hidden');
+      pre.classList.toggle('hidden', !wasHidden);
+      const btn = document.getElementById('ai-plan-toggle');
+      if (btn) {
+        const span = btn.querySelector('span');
+        if (span) {
+          span.textContent = wasHidden ? (t('aiHideJson') || 'Hide JSON') : (t('aiShowJson') || 'Show JSON');
+          span.setAttribute('data-i18n', wasHidden ? 'aiHideJson' : 'aiShowJson');
+        }
+      }
     }
 
     function aiExtractActionPlan(text) {
@@ -4327,6 +4708,16 @@
       if (pre) {
         try { pre.textContent = JSON.stringify(pending, null, 2); }
         catch { pre.textContent = String(pending); }
+        pre.classList.add('hidden');
+      }
+
+      const toggleBtn = document.getElementById('ai-plan-toggle');
+      if (toggleBtn) {
+        const span = toggleBtn.querySelector('span');
+        if (span) {
+          span.textContent = t('aiShowJson') || 'Show JSON';
+          span.setAttribute('data-i18n', 'aiShowJson');
+        }
       }
       try { lucide.createIcons(); } catch { }
     }
@@ -4345,6 +4736,14 @@
         showToast(t('aiNoPlan') || 'No plan', 'error');
         return;
       }
+
+      // Export the approved plan as a JSON file (audit/share)
+      try {
+        const ts = new Date().toISOString().replace(/[:]/g, '-').split('.')[0];
+        const fileName = `tijarati_ai_plan_${ts}.json`;
+        const content = JSON.stringify(pending, null, 2);
+        await API.saveFileWithType(fileName, content, 'application/json');
+      } catch { }
 
       const now = Date.now();
       const applied = [];
@@ -4521,30 +4920,11 @@
       // Web uses relative /api; mobile (file://) must use an absolute Server URL.
       const proto = (window.location && window.location.protocol) ? window.location.protocol : '';
       if (proto === 'file:') {
-        const base = aiGetRemoteBaseUrl();
-        if (!base) return aiLocalRespond(message);
-
         const summary = aiComputeSummaryFromState();
-
-        try {
-          const statusResp = await fetch(`${base}/api/ai/status`, { method: 'GET' });
-          if (!statusResp.ok) throw new Error('no-status');
-          const status = await statusResp.json();
-          if (!status?.enabled) throw new Error('ai-disabled');
-
-          const resp = await fetch(`${base}/api/ai`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message, lang: state.language || 'darija', summary })
-          });
-          if (!resp.ok) throw new Error('ai-failed');
-          const data = await resp.json();
-          const text = (data?.reply || '').toString().trim();
-          if (text) return text;
-          throw new Error('no-reply');
-        } catch {
-          return aiLocalRespond(message);
-        }
+        // Mobile WebView: always use native Gemini if configured (no server).
+        const r = await aiNativeRequest('AI_GEMINI', { message, lang: state.language || 'darija', summary });
+        const text = (r && r.success && r.reply) ? String(r.reply).trim() : '';
+        return text || aiLocalRespond(message);
       }
       try {
         const summary = aiComputeSummaryFromState();
@@ -4813,7 +5193,7 @@
       <table>
         ${rowsHtml}
       </table>
-      <div class="footer">${safe(new Date().toLocaleString())}</div>
+      <div class="footer">${safe(toLatinDigits(new Date().toLocaleString()))}</div>
     </div>
   </body>
 </html>`;
@@ -5166,6 +5546,9 @@
       const btnTotal = document.getElementById('btn-mode-total');
       const unitInput = document.getElementById('tx-unit-price');
       const totalInput = document.getElementById('tx-total-price');
+      const unitWrap = document.getElementById('tx-unit-wrap');
+      const totalWrap = document.getElementById('tx-total-wrap');
+      const hintMain = document.getElementById('pricing-hint-main');
       const hint = document.getElementById('pricing-hint');
 
       const active = {
@@ -5185,14 +5568,20 @@
       if (state.pricingMode === 'unit') {
         apply(btnUnit, active);
         apply(btnTotal, inactive);
+        if (unitWrap) unitWrap.classList.remove('hidden');
+        if (totalWrap) totalWrap.classList.add('hidden');
         if (unitInput) { unitInput.readOnly = false; unitInput.style.opacity = '1'; }
         if (totalInput) { totalInput.readOnly = true; totalInput.style.opacity = '0.65'; }
+        if (hintMain) hintMain.textContent = (t('unitModeHint') || 'Enter unit price + quantity. The app calculates the total.');
         if (hint) hint.textContent = t('unitModeHint');
       } else {
         apply(btnTotal, active);
         apply(btnUnit, inactive);
+        if (totalWrap) totalWrap.classList.remove('hidden');
+        if (unitWrap) unitWrap.classList.add('hidden');
         if (totalInput) { totalInput.readOnly = false; totalInput.style.opacity = '1'; }
         if (unitInput) { unitInput.readOnly = true; unitInput.style.opacity = '0.65'; }
+        if (hintMain) hintMain.textContent = (t('totalModeHint') || 'Enter total price + total units.');
         if (hint) hint.textContent = t('totalModeHint');
       }
 
@@ -6882,38 +7271,6 @@
       } catch { }
     }
 
-    function toggleMockData() {
-      if (!window.isNativeApp) {
-        showToast(t('mockNotAvailable'), 'info');
-        return;
-      }
-
-      const nextEnabled = !state.mockDataEnabled;
-      openConfirm({
-        title: nextEnabled ? t('enableMockData') : t('disableMockData'),
-        message: nextEnabled ? t('mockEnableConfirm') : t('mockDisableConfirm'),
-        confirmText: nextEnabled ? t('enableMockData') : t('disableMockData'),
-        danger: !nextEnabled,
-        onConfirm: async () => {
-          try {
-            showBlockingOverlay(nextEnabled ? t('enableMockData') : t('disableMockData'), '');
-            const res = await API.setMockData(nextEnabled);
-            if (res && res.success === false) throw new Error(res.error || 'Failed');
-
-            state.mockDataEnabled = nextEnabled;
-            await syncFromNative();
-            renderAll();
-            updateMockDataButton();
-            showToast(nextEnabled ? t('mockAdded') : t('mockRemoved'), 'success');
-          } catch (err) {
-            showToast(String(err?.message || err || 'Failed'), 'error');
-          } finally {
-            try { hideBlockingOverlay(); } catch { }
-          }
-        }
-      });
-    }
-
     async function importData(event) {
       let content = null;
 
@@ -7250,7 +7607,7 @@
       const msg = document.getElementById('toast-message');
       const icon = document.getElementById('toast-icon');
 
-      msg.textContent = message;
+      msg.textContent = toLatinDigits(message);
       const iconName = type === 'error' ? 'alert-circle' : type === 'info' ? 'info' : 'check-circle';
       const iconColor = type === 'error' ? 'var(--danger)' : type === 'info' ? 'var(--warn)' : 'var(--success)';
       icon.innerHTML = `<i data-lucide="${iconName}" class="w-5 h-5"></i>`;
@@ -7274,7 +7631,7 @@
       const options = { weekday: 'long', day: 'numeric', month: 'long' };
       const locale = state.language === 'english' ? 'en' : (state.language === 'french' ? 'fr' : 'ar-MA');
       const el = document.getElementById('current-date-header');
-      if (el) el.textContent = new Date().toLocaleDateString(locale, options);
+      if (el) el.textContent = toLatinDigits(new Date().toLocaleDateString(locale, options));
     }
 
     // ==========================
@@ -7296,7 +7653,7 @@
     // Security
     // ==========================
     function escapeHtml(str) {
-      return String(str)
+      return toLatinDigits(String(str))
         .replaceAll('&', '&amp;')
         .replaceAll('<', '&lt;')
         .replaceAll('>', '&gt;')
@@ -7343,9 +7700,6 @@
       applyLanguage();
       applyCurrency();
 
-      // settings button state
-      updateMockDataButton();
-
       // filters
       renderHistoryFilters(state.historyFilter || 'all');
 
@@ -7375,12 +7729,14 @@
           if (document.getElementById('transaction-modal') && !document.getElementById('transaction-modal').classList.contains('hidden')) return closeModal();
           if (document.getElementById('quick-add') && !document.getElementById('quick-add').classList.contains('hidden')) return closeQuickAdd();
           if (document.querySelector('.screen.active')?.id === 'settings-screen') return closeSettings();
-          if (document.querySelector('.screen.active')?.id === 'auth-screen') return goBack();
         }
       });
 
-      // Restore last screen (except settings)
-      const target = (state.lastScreen && state.lastScreen !== 'settings-screen' && state.lastScreen !== 'auth-screen') ? state.lastScreen : 'home-screen';
+      // Cloud user (needed before choosing the first screen)
+      try { await Cloud.init(); } catch { }
+
+      // First screen: always go to the last screen (except settings), otherwise home.
+      const target = (state.lastScreen && state.lastScreen !== 'settings-screen') ? state.lastScreen : 'home-screen';
       showScreen(target, { push: false });
 
       // loader out
@@ -7414,7 +7770,6 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       lucide.createIcons();
-      try { Cloud.init(); } catch { }
       initSafe();
     });
   </script>

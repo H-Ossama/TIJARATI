@@ -17,53 +17,71 @@ import Constants from 'expo-constants';
 import { getApp } from '@react-native-firebase/app';
 import {
   getAuth,
+  createUserWithEmailAndPassword,
   GoogleAuthProvider,
+  sendPasswordResetEmail,
   signInWithCredential,
+  signInWithEmailAndPassword,
   signOut as firebaseSignOut,
 } from '@react-native-firebase/auth';
-import {
-  getStorage,
-  ref as storageRef,
-  uploadString,
-  getDownloadURL,
-} from '@react-native-firebase/storage';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { htmlContent } from './assets/frontend_bundle';
+import googleServices from './google-services.json';
 
-const db = SQLite.openDatabaseSync('tijarati.db');
+// NOTE: Use async SQLite APIs to avoid sync/JSI crashes (e.g. when Remote JS Debugging is enabled).
+let dbPromise = null;
 
-db.execSync(`
-  CREATE TABLE IF NOT EXISTS transactions (
-    id TEXT PRIMARY KEY, type TEXT, item TEXT, amount REAL, quantity REAL, date TEXT, isCredit INTEGER, clientName TEXT, paidAmount REAL, isFullyPaid INTEGER, currency TEXT, createdAt INTEGER, isMock INTEGER DEFAULT 0
+async function initDb() {
+  const db = await SQLite.openDatabaseAsync('tijarati.db');
+
+  // Use runAsync per statement (more reliable than execAsync on some Android builds).
+  await db.runAsync(
+    'CREATE TABLE IF NOT EXISTS transactions (id TEXT PRIMARY KEY, type TEXT, item TEXT, amount REAL, quantity REAL, date TEXT, isCredit INTEGER, clientName TEXT, paidAmount REAL, isFullyPaid INTEGER, currency TEXT, createdAt INTEGER, isMock INTEGER DEFAULT 0)'
   );
-  CREATE TABLE IF NOT EXISTS partners (
-    id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, percent REAL, createdAt INTEGER, isMock INTEGER DEFAULT 0
+  await db.runAsync(
+    'CREATE TABLE IF NOT EXISTS partners (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, percent REAL, createdAt INTEGER, isMock INTEGER DEFAULT 0)'
   );
-`);
 
-// Add missing columns for newer UI versions (safe on existing installs)
-try {
-  const txCols = db.getAllSync('PRAGMA table_info(transactions)');
-  const hasCol = (name) => Array.isArray(txCols) && txCols.some(c => c && c.name === name);
-  if (!hasCol('unitPrice')) db.runSync('ALTER TABLE transactions ADD COLUMN unitPrice REAL');
-  if (!hasCol('pricingMode')) db.runSync('ALTER TABLE transactions ADD COLUMN pricingMode TEXT');
-  if (!hasCol('isInstallmentPlan')) db.runSync('ALTER TABLE transactions ADD COLUMN isInstallmentPlan INTEGER DEFAULT 0');
-  if (!hasCol('installments')) db.runSync('ALTER TABLE transactions ADD COLUMN installments TEXT');
-  if (!hasCol('dueDate')) db.runSync('ALTER TABLE transactions ADD COLUMN dueDate TEXT');
-  if (!hasCol('reminderId')) db.runSync('ALTER TABLE transactions ADD COLUMN reminderId TEXT');
-  if (!hasCol('isMock')) db.runSync('ALTER TABLE transactions ADD COLUMN isMock INTEGER DEFAULT 0');
-} catch { }
+  // Add missing columns for newer UI versions (safe on existing installs)
+  try {
+    const txCols = await db.getAllAsync('PRAGMA table_info(transactions)');
+    const hasCol = (name) => Array.isArray(txCols) && txCols.some((c) => c && c.name === name);
+    if (!hasCol('unitPrice')) await db.runAsync('ALTER TABLE transactions ADD COLUMN unitPrice REAL');
+    if (!hasCol('pricingMode')) await db.runAsync('ALTER TABLE transactions ADD COLUMN pricingMode TEXT');
+    if (!hasCol('isInstallmentPlan')) await db.runAsync('ALTER TABLE transactions ADD COLUMN isInstallmentPlan INTEGER DEFAULT 0');
+    if (!hasCol('installments')) await db.runAsync('ALTER TABLE transactions ADD COLUMN installments TEXT');
+    if (!hasCol('dueDate')) await db.runAsync('ALTER TABLE transactions ADD COLUMN dueDate TEXT');
+    if (!hasCol('reminderId')) await db.runAsync('ALTER TABLE transactions ADD COLUMN reminderId TEXT');
+    if (!hasCol('isMock')) await db.runAsync('ALTER TABLE transactions ADD COLUMN isMock INTEGER DEFAULT 0');
+  } catch { }
 
-try {
-  const partnerCols = db.getAllSync('PRAGMA table_info(partners)');
-  const hasPartnerCol = (name) => Array.isArray(partnerCols) && partnerCols.some(c => c && c.name === name);
-  if (!hasPartnerCol('isMock')) db.runSync('ALTER TABLE partners ADD COLUMN isMock INTEGER DEFAULT 0');
-  if (!hasPartnerCol('investedBase')) db.runSync('ALTER TABLE partners ADD COLUMN investedBase REAL');
-  if (!hasPartnerCol('investedAt')) db.runSync('ALTER TABLE partners ADD COLUMN investedAt TEXT');
-  if (!hasPartnerCol('profitSchedule')) db.runSync('ALTER TABLE partners ADD COLUMN profitSchedule TEXT');
-  if (!hasPartnerCol('notes')) db.runSync('ALTER TABLE partners ADD COLUMN notes TEXT');
-  if (!hasPartnerCol('payouts')) db.runSync('ALTER TABLE partners ADD COLUMN payouts TEXT');
-} catch { }
+  try {
+    const partnerCols = await db.getAllAsync('PRAGMA table_info(partners)');
+    const hasPartnerCol = (name) => Array.isArray(partnerCols) && partnerCols.some((c) => c && c.name === name);
+    if (!hasPartnerCol('isMock')) await db.runAsync('ALTER TABLE partners ADD COLUMN isMock INTEGER DEFAULT 0');
+    if (!hasPartnerCol('investedBase')) await db.runAsync('ALTER TABLE partners ADD COLUMN investedBase REAL');
+    if (!hasPartnerCol('investedAt')) await db.runAsync('ALTER TABLE partners ADD COLUMN investedAt TEXT');
+    if (!hasPartnerCol('profitSchedule')) await db.runAsync('ALTER TABLE partners ADD COLUMN profitSchedule TEXT');
+    if (!hasPartnerCol('notes')) await db.runAsync('ALTER TABLE partners ADD COLUMN notes TEXT');
+    if (!hasPartnerCol('payouts')) await db.runAsync('ALTER TABLE partners ADD COLUMN payouts TEXT');
+  } catch { }
+
+  return db;
+}
+
+async function getDb() {
+  if (!dbPromise) dbPromise = initDb();
+  return dbPromise;
+}
+
+function toLatinDigits(input) {
+  const s = String(input ?? '');
+  // Arabic-Indic: \u0660-\u0669 (٠١٢٣٤٥٦٧٨٩)
+  // Eastern Arabic-Indic: \u06F0-\u06F9 (۰۱۲۳۴۵۶۷۸۹)
+  return s
+    .replace(/[\u0660-\u0669]/g, (d) => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)))
+    .replace(/[\u06F0-\u06F9]/g, (d) => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d)));
+}
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -94,7 +112,62 @@ export default function App() {
     }
   })();
 
+  const geminiApiKeyRaw = (() => {
+    try {
+      return (
+        Constants?.expoConfig?.extra?.geminiApiKey
+        || Constants?.manifest?.extra?.geminiApiKey
+        || Constants?.manifest2?.extra?.geminiApiKey
+        || ''
+      );
+    } catch {
+      return '';
+    }
+  })();
+
+  const geminiModelRaw = (() => {
+    try {
+      return (
+        Constants?.expoConfig?.extra?.geminiModel
+        || Constants?.manifest?.extra?.geminiModel
+        || Constants?.manifest2?.extra?.geminiModel
+        || ''
+      );
+    } catch {
+      return '';
+    }
+  })();
+
   const aiServerUrl = String(aiServerUrlRaw || '').trim();
+  const geminiApiKeyConfig = String(geminiApiKeyRaw || '').trim();
+  const geminiModel = (String(geminiModelRaw || '').trim() || 'gemini-2.5-flash');
+
+  const [runtimeGeminiKey, setRuntimeGeminiKey] = useState('');
+
+  const getEffectiveGeminiApiKey = async () => {
+    const current = String(runtimeGeminiKey || geminiApiKeyConfig || '').trim();
+    if (current) return current;
+    try {
+      const stored = await SecureStore.getItemAsync('tijarati_gemini_api_key');
+      const next = String(stored || '').trim();
+      if (next) {
+        setRuntimeGeminiKey(next);
+        return next;
+      }
+    } catch { }
+    return '';
+  };
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const stored = await SecureStore.getItemAsync('tijarati_gemini_api_key');
+        if (stored) setRuntimeGeminiKey(String(stored).trim());
+      } catch { }
+    })();
+  }, []);
+
+  const effectiveGeminiApiKey = String(runtimeGeminiKey || geminiApiKeyConfig || '').trim();
 
   const htmlSource = { html: htmlContent, baseUrl: 'file:///android_asset/' };
 
@@ -202,8 +275,21 @@ export default function App() {
   useEffect(() => {
     try {
       // webClientId comes from google-services.json (oauth_client client_type=3)
+      const extractedWebClientId = (() => {
+        try {
+          const client0 = googleServices?.client?.[0];
+          const oauth = Array.isArray(client0?.oauth_client) ? client0.oauth_client : [];
+          const web = oauth.find((c) => c && c.client_type === 3 && typeof c.client_id === 'string');
+          return String(web?.client_id || '').trim();
+        } catch {
+          return '';
+        }
+      })();
+
       GoogleSignin.configure({
-        webClientId: '796219379032-to20l2jbsnk2k4armola7j71b82k6met.apps.googleusercontent.com',
+        webClientId:
+          extractedWebClientId
+          || '796219379032-to20l2jbsnk2k4armola7j71b82k6met.apps.googleusercontent.com',
         offlineAccess: false,
       });
     } catch { }
@@ -257,24 +343,25 @@ export default function App() {
     let payload = null;
     let result = null;
 
+    let firebaseAuth = null;
+
+    const mapUser = (u) => {
+      if (!u) return null;
+      return {
+        uid: u.uid,
+        email: u.email || '',
+        displayName: u.displayName || ''
+      };
+    };
+
     try {
       const data = JSON.parse(event.nativeEvent.data);
       id = data?.id;
       type = data?.type;
       payload = data?.payload;
 
-      const mapUser = (u) => {
-        if (!u) return null;
-        return {
-          uid: u.uid,
-          email: u.email || '',
-          displayName: u.displayName || ''
-        };
-      };
-
       const app = getApp();
-      const firebaseAuth = getAuth(app);
-      const firebaseStorage = getStorage(app);
+      firebaseAuth = getAuth(app);
 
       if (type === 'EXIT_APP') {
         BackHandler.exitApp();
@@ -282,9 +369,106 @@ export default function App() {
       }
 
       // ==========================
+      // AI (Native Gemini, no server)
+      if (type === 'AI_STATUS') {
+        const key = await getEffectiveGeminiApiKey();
+        result = {
+          success: true,
+          enabled: !!key,
+          model: geminiModel,
+          reason: key ? 'ok' : 'missing_api_key'
+        };
+      } else if (type === 'AI_SET_GEMINI_KEY') {
+        try {
+          const key = String(payload?.key || '').trim();
+          if (!key) {
+            await SecureStore.deleteItemAsync('tijarati_gemini_api_key');
+            setRuntimeGeminiKey('');
+            result = { success: true, cleared: true };
+          } else {
+            await SecureStore.setItemAsync('tijarati_gemini_api_key', key);
+            setRuntimeGeminiKey(key);
+            result = { success: true };
+          }
+        } catch (err) {
+          result = { success: false, error: String(err?.message || err) };
+        }
+      } else if (type === 'AI_CLEAR_GEMINI_KEY') {
+        try {
+          await SecureStore.deleteItemAsync('tijarati_gemini_api_key');
+          setRuntimeGeminiKey('');
+          result = { success: true };
+        } catch (err) {
+          result = { success: false, error: String(err?.message || err) };
+        }
+      } else if (type === 'AI_GEMINI') {
+        const key = await getEffectiveGeminiApiKey();
+        if (!key) {
+          result = { success: false, error: 'missing_api_key' };
+        } else {
+          const message = String(payload?.message || '').trim();
+          const lang = String(payload?.lang || 'english');
+          const summary = (payload?.summary && typeof payload.summary === 'object') ? payload.summary : null;
+          if (!message) {
+            result = { success: false, error: 'Missing message' };
+          } else {
+            const langMap = {
+              darija: 'Moroccan Darija (Arabic script when possible)',
+              arabic: 'Arabic',
+              french: 'French',
+              english: 'English'
+            };
+
+            const system = `You are Tijarati's assistant — friendly, practical, and proactive.
+
+You receive:
+1) DATA SUMMARY (JSON) from the user's bookkeeping app
+2) USER QUESTION
+
+Guidelines:
+- Be helpful. Use the data summary when relevant, but you may also answer general questions.
+- If information is missing, ask 1-3 precise follow-up questions.
+- For business/investing questions, provide balanced advice, trade-offs, and 3-6 concrete next steps.
+- Investment guidance must be general education (not professional financial advice). Do not guarantee outcomes.
+- Keep it concise but not overly short (up to ~10 short sentences or 4-8 bullets).
+- Use the user's language: ${langMap[lang] || 'English'}.
+- IMPORTANT: Use Western/Latin digits (0-9) for ALL numbers.`;
+
+            const safeSummary = summary || {};
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(geminiModel)}:generateContent?key=${encodeURIComponent(key)}`;
+            const body = {
+              contents: [
+                {
+                  role: 'user',
+                  parts: [{ text: `${system}\n\nDATA SUMMARY (JSON): ${JSON.stringify(safeSummary)}\n\nUSER QUESTION: ${message}` }]
+                }
+              ],
+              generationConfig: { temperature: 0.5, maxOutputTokens: 512 }
+            };
+
+            const resp = await fetch(url, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(body)
+            });
+
+            if (!resp.ok) {
+              const txt = await resp.text();
+              result = { success: false, error: 'Gemini request failed', details: txt };
+            } else {
+              const data = await resp.json();
+              const reply = String(data?.candidates?.[0]?.content?.parts?.[0]?.text || '').trim();
+              if (!reply) result = { success: false, error: 'No reply from model' };
+              else result = { success: true, reply: toLatinDigits(reply) };
+            }
+          }
+        }
+      }
+
+      // ==========================
       // Cloud (Native Firebase)
       // ==========================
-      if (type === 'CLOUD_GET_USER') {
+      else if (type === 'CLOUD_GET_USER') {
         const u = firebaseAuth.currentUser;
         result = { success: true, user: mapUser(u) };
       } else if (type === 'CLOUD_SIGNIN') {
@@ -300,84 +484,69 @@ export default function App() {
             result = { success: true, user: mapUser(userCred?.user || firebaseAuth.currentUser) };
           }
         } catch (e) {
-          result = { success: false, error: String(e?.message || e || 'Sign-in failed') };
+          const msg = String(e?.message || e || 'Sign-in failed');
+          if (msg.includes('DEVELOPER_ERROR')) {
+            result = {
+              success: false,
+              error:
+                'DEVELOPER_ERROR: Google Sign-In is not configured for this app signing key. '
+                + 'Fix: run `cd mobile/android; ./gradlew signingReport` and add the Debug SHA1 for package `com.tijarati` '
+                + 'in Firebase Console (Project settings → Your apps → Android → SHA certificate fingerprints), '
+                + 'then download a fresh google-services.json and rebuild the app.'
+            };
+          } else {
+            result = { success: false, error: msg };
+          }
         }
       } else if (type === 'CLOUD_SIGNOUT') {
         try { await firebaseSignOut(firebaseAuth); } catch { }
         try { await GoogleSignin.signOut(); } catch { }
         result = { success: true };
-      } else if (type === 'CLOUD_BACKUP') {
-        const u = firebaseAuth.currentUser;
-        if (!u) {
-          result = { success: false, error: 'Not signed in' };
-        } else {
-          const snapshot = payload?.snapshot;
-          const manifest = payload?.manifest;
-          if (!snapshot || typeof snapshot !== 'object') {
-            result = { success: false, error: 'Invalid snapshot' };
+      } else if (type === 'AUTH_EMAIL_SIGNIN') {
+        try {
+          const email = String(payload?.email || '').trim();
+          const password = String(payload?.password || '').trim();
+          if (!email || !password) {
+            result = { success: false, error: 'Missing email/password' };
           } else {
-            const basePath = `tijarati_backups/${u.uid}`;
-            const snapStr = JSON.stringify(snapshot);
-            const manStr = JSON.stringify((manifest && typeof manifest === 'object') ? manifest : {});
-
-            await uploadString(
-              storageRef(firebaseStorage, `${basePath}/latest.json`),
-              snapStr,
-              'raw',
-              { contentType: 'application/json' }
-            );
-            await uploadString(
-              storageRef(firebaseStorage, `${basePath}/latest_manifest.json`),
-              manStr,
-              'raw',
-              { contentType: 'application/json' }
-            );
-
-            result = { success: true, user: mapUser(u), manifest: (manifest && typeof manifest === 'object') ? manifest : null };
+            const userCred = await signInWithEmailAndPassword(firebaseAuth, email, password);
+            result = { success: true, user: mapUser(userCred?.user || firebaseAuth.currentUser) };
           }
+        } catch (e) {
+          result = { success: false, error: String(e?.message || e || 'Sign-in failed') };
         }
+      } else if (type === 'AUTH_EMAIL_SIGNUP') {
+        try {
+          const email = String(payload?.email || '').trim();
+          const password = String(payload?.password || '').trim();
+          if (!email || !password) {
+            result = { success: false, error: 'Missing email/password' };
+          } else {
+            const userCred = await createUserWithEmailAndPassword(firebaseAuth, email, password);
+            result = { success: true, user: mapUser(userCred?.user || firebaseAuth.currentUser) };
+          }
+        } catch (e) {
+          result = { success: false, error: String(e?.message || e || 'Sign-up failed') };
+        }
+      } else if (type === 'AUTH_RESET_PASSWORD') {
+        try {
+          const email = String(payload?.email || '').trim();
+          if (!email) {
+            result = { success: false, error: 'Missing email' };
+          } else {
+            await sendPasswordResetEmail(firebaseAuth, email);
+            result = { success: true };
+          }
+        } catch (e) {
+          result = { success: false, error: String(e?.message || e || 'Reset failed') };
+        }
+      } else if (type === 'CLOUD_BACKUP') {
+        result = { success: false, error: 'Cloud backup is disabled in this build.' };
       } else if (type === 'CLOUD_STATUS') {
         const u = firebaseAuth.currentUser;
-        if (!u) {
-          result = { success: true, user: null, manifest: null };
-        } else {
-          const basePath = `tijarati_backups/${u.uid}`;
-          const manifestFileRef = storageRef(firebaseStorage, `${basePath}/latest_manifest.json`);
-          let manifest = null;
-          try {
-            const url = await getDownloadURL(manifestFileRef);
-            const res = await fetch(url);
-            if (res.ok) manifest = await res.json();
-          } catch {
-            manifest = null;
-          }
-          result = { success: true, user: mapUser(u), manifest };
-        }
+        result = { success: true, user: mapUser(u), manifest: null };
       } else if (type === 'CLOUD_RESTORE') {
-        const u = firebaseAuth.currentUser;
-        if (!u) {
-          result = { success: false, error: 'Not signed in' };
-        } else {
-          const basePath = `tijarati_backups/${u.uid}`;
-          const snapRef = storageRef(firebaseStorage, `${basePath}/latest.json`);
-          const manRef = storageRef(firebaseStorage, `${basePath}/latest_manifest.json`);
-          let snapshot = null;
-          let manifest = null;
-
-          try {
-            const mUrl = await getDownloadURL(manRef);
-            const mRes = await fetch(mUrl);
-            if (mRes.ok) manifest = await mRes.json();
-          } catch { manifest = null; }
-
-          try {
-            const sUrl = await getDownloadURL(snapRef);
-            const sRes = await fetch(sUrl);
-            if (sRes.ok) snapshot = await sRes.json();
-          } catch { snapshot = null; }
-
-          result = { success: true, user: mapUser(u), snapshot, manifest };
-        }
+        result = { success: false, error: 'Cloud restore is disabled in this build.' };
       }
 
       // Security: PIN + biometrics
@@ -395,12 +564,32 @@ export default function App() {
           result = { success: true };
         }
       } else if (type === 'SECURITY_DISABLE_PIN') {
-        await SecureStore.deleteItemAsync('tijarati_pin_hash');
-        await SecureStore.setItemAsync('tijarati_bio_enabled', '0');
-        setPinEnabled(false);
-        setBiometricEnabled(false);
-        setLocked(false);
-        result = { success: true };
+        const existingHash = await SecureStore.getItemAsync('tijarati_pin_hash');
+        if (existingHash) {
+          const pin = String(payload?.pin || '').trim();
+          if (pin.length < 4) {
+            result = { success: false, error: 'PIN_REQUIRED' };
+          } else {
+            const enteredHash = await hashPin(pin);
+            if (enteredHash !== existingHash) {
+              result = { success: false, error: 'PIN_WRONG' };
+            } else {
+              await SecureStore.deleteItemAsync('tijarati_pin_hash');
+              await SecureStore.setItemAsync('tijarati_bio_enabled', '0');
+              setPinEnabled(false);
+              setBiometricEnabled(false);
+              setLocked(false);
+              result = { success: true };
+            }
+          }
+        } else {
+          // Nothing to disable
+          await SecureStore.setItemAsync('tijarati_bio_enabled', '0');
+          setPinEnabled(false);
+          setBiometricEnabled(false);
+          setLocked(false);
+          result = { success: true };
+        }
       } else if (type === 'SECURITY_SET_BIOMETRIC') {
         const enabled = !!payload?.enabled;
         const hasHardware = await LocalAuthentication.hasHardwareAsync();
@@ -420,7 +609,8 @@ export default function App() {
       }
 
       if (type === 'GET_TRANSACTIONS') {
-        const rows = db.getAllSync('SELECT * FROM transactions ORDER BY date DESC');
+        const db = await getDb();
+        const rows = await db.getAllAsync('SELECT * FROM transactions ORDER BY date DESC');
         // Map DB schema -> v3 UI schema
         result = (rows || []).map((r) => ({
           id: r.id,
@@ -461,7 +651,8 @@ export default function App() {
             return '[]';
           }
         })();
-        db.runSync(
+        const db = await getDb();
+        await db.runAsync(
           'INSERT OR REPLACE INTO transactions (id, type, item, amount, quantity, unitPrice, pricingMode, date, isCredit, clientName, paidAmount, isFullyPaid, currency, createdAt, dueDate, reminderId, isInstallmentPlan, installments, isMock) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
           [
             String(tx.id),
@@ -487,7 +678,8 @@ export default function App() {
         );
         result = { success: true };
       } else if (type === 'GET_PARTNERS') {
-        const rows = db.getAllSync('SELECT * FROM partners');
+        const db = await getDb();
+        const rows = await db.getAllAsync('SELECT * FROM partners');
         result = (rows || []).map((r) => {
           let payouts = [];
           const raw = r?.payouts;
@@ -519,31 +711,37 @@ export default function App() {
         })();
         // Preserve explicit id when provided (older bundles didn't)
         const idNum = (p && p.id !== undefined && p.id !== null) ? Number(p.id) : null;
+        const db = await getDb();
         if (idNum !== null && Number.isFinite(idNum)) {
-          db.runSync(
+          await db.runAsync(
             'INSERT OR REPLACE INTO partners (id, name, percent, createdAt, investedBase, investedAt, profitSchedule, notes, payouts, isMock) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
             [idNum, p.name, p.percent, p.createdAt ?? Date.now(), Number(p.investedBase ?? 0), p.investedAt ? String(p.investedAt) : '', String(p.profitSchedule ?? ''), String(p.notes ?? ''), payoutsJson, 0]
           );
         } else {
-          db.runSync(
+          await db.runAsync(
             'INSERT INTO partners (name, percent, createdAt, investedBase, investedAt, profitSchedule, notes, payouts, isMock) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
             [p.name, p.percent, p.createdAt ?? Date.now(), Number(p.investedBase ?? 0), p.investedAt ? String(p.investedAt) : '', String(p.profitSchedule ?? ''), String(p.notes ?? ''), payoutsJson, 0]
           );
         }
         result = { success: true };
       } else if (type === 'DELETE_PARTNER') {
-        db.runSync('DELETE FROM partners WHERE id = ?', [payload.id]);
+        const db = await getDb();
+        await db.runAsync('DELETE FROM partners WHERE id = ?', [payload.id]);
         result = { success: true };
       } else if (type === 'DELETE_TRANSACTION') {
         // Best-effort: cancel scheduled reminder if present
         try {
-          const row = db.getFirstSync('SELECT reminderId FROM transactions WHERE id = ?', [payload.id]);
+          const db = await getDb();
+          const row = await db.getFirstAsync('SELECT reminderId FROM transactions WHERE id = ?', [payload.id]);
           const reminderId = row?.reminderId;
           if (reminderId) {
             try { await Notifications.cancelScheduledNotificationAsync(String(reminderId)); } catch { }
           }
         } catch { }
-        db.runSync('DELETE FROM transactions WHERE id = ?', [payload.id]);
+        {
+          const db = await getDb();
+          await db.runAsync('DELETE FROM transactions WHERE id = ?', [payload.id]);
+        }
         result = { success: true };
       } else if (type === 'SCHEDULE_DEBT_REMINDER') {
         const ts = Number(payload?.timestamp);
@@ -589,7 +787,8 @@ export default function App() {
       } else if (type === 'CLEAR_ALL_DATA') {
         // Cancel all scheduled reminders stored in DB
         try {
-          const reminderRows = db.getAllSync("SELECT reminderId FROM transactions WHERE reminderId IS NOT NULL AND reminderId != ''");
+          const db = await getDb();
+          const reminderRows = await db.getAllAsync("SELECT reminderId FROM transactions WHERE reminderId IS NOT NULL AND reminderId != ''");
           for (const r of reminderRows || []) {
             const rid = r?.reminderId;
             if (!rid) continue;
@@ -597,18 +796,19 @@ export default function App() {
           }
         } catch { }
 
-        db.execSync('BEGIN');
+        const db = await getDb();
+        await db.runAsync('BEGIN');
         try {
-          db.runSync('DELETE FROM transactions');
-          db.runSync('DELETE FROM partners');
+          await db.runAsync('DELETE FROM transactions');
+          await db.runAsync('DELETE FROM partners');
           // Reset autoincrement counter (safe even if table missing in sqlite_sequence)
           try {
-            db.runSync("DELETE FROM sqlite_sequence WHERE name = 'partners'");
+            await db.runAsync("DELETE FROM sqlite_sequence WHERE name = 'partners'");
           } catch { }
-          db.execSync('COMMIT');
+          await db.runAsync('COMMIT');
           result = { success: true };
         } catch (err) {
-          try { db.execSync('ROLLBACK'); } catch { }
+          try { await db.runAsync('ROLLBACK'); } catch { }
           result = { success: false, error: String(err?.message || err) };
         }
       } else if (type === 'IMPORT_DATA') {
@@ -621,7 +821,8 @@ export default function App() {
 
         // Cancel previously scheduled reminders stored in DB (best-effort)
         try {
-          const reminderRows = db.getAllSync("SELECT reminderId FROM transactions WHERE reminderId IS NOT NULL AND reminderId != ''");
+          const db = await getDb();
+          const reminderRows = await db.getAllAsync("SELECT reminderId FROM transactions WHERE reminderId IS NOT NULL AND reminderId != ''");
           for (const r of reminderRows || []) {
             const rid = r?.reminderId;
             if (!rid) continue;
@@ -629,10 +830,11 @@ export default function App() {
           }
         } catch { }
 
-        db.execSync('BEGIN');
+        const db = await getDb();
+        await db.runAsync('BEGIN');
         try {
-          db.runSync('DELETE FROM transactions');
-          db.runSync('DELETE FROM partners');
+          await db.runAsync('DELETE FROM transactions');
+          await db.runAsync('DELETE FROM partners');
 
           for (const p of partners) {
             if (!p) continue;
@@ -656,7 +858,7 @@ export default function App() {
             if (p.id !== undefined && p.id !== null && p.id !== '') {
               const idNum = Number(p.id);
               if (!Number.isNaN(idNum)) {
-                db.runSync(
+                await db.runAsync(
                   'INSERT OR REPLACE INTO partners (id, name, percent, createdAt, investedBase, investedAt, profitSchedule, notes, payouts, isMock) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
                   [idNum, name, percent, createdAt, investedBase, investedAt, profitSchedule, notes, payoutsJson, 0]
                 );
@@ -664,7 +866,7 @@ export default function App() {
               }
             }
 
-            db.runSync(
+            await db.runAsync(
               'INSERT INTO partners (name, percent, createdAt, investedBase, investedAt, profitSchedule, notes, payouts, isMock) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
               [name, percent, createdAt, investedBase, investedAt, profitSchedule, notes, payoutsJson, 0]
             );
@@ -683,7 +885,7 @@ export default function App() {
               }
             })();
 
-            db.runSync(
+            await db.runAsync(
               'INSERT OR REPLACE INTO transactions (id, type, item, amount, quantity, unitPrice, pricingMode, date, isCredit, clientName, paidAmount, isFullyPaid, currency, createdAt, dueDate, reminderId, isInstallmentPlan, installments, isMock) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
               [
                 txId,
@@ -711,83 +913,20 @@ export default function App() {
 
           // Ensure next AUTOINCREMENT doesn't collide
           try {
-            const maxPartnerId = db.getFirstSync('SELECT MAX(id) as maxId FROM partners')?.maxId;
+            const maxPartnerId = (await db.getFirstAsync('SELECT MAX(id) as maxId FROM partners'))?.maxId;
             if (maxPartnerId) {
-              db.runSync(
+              await db.runAsync(
                 "INSERT OR REPLACE INTO sqlite_sequence (name, seq) VALUES ('partners', ?)",
                 [Number(maxPartnerId)]
               );
             }
           } catch { }
 
-          db.execSync('COMMIT');
+          await db.runAsync('COMMIT');
           result = { success: true, counts: { partners: partners.length, transactions: transactions.length } };
         } catch (err) {
-          try { db.execSync('ROLLBACK'); } catch { }
+          try { await db.runAsync('ROLLBACK'); } catch { }
           result = { success: false, error: String(err?.message || err) };
-        }
-      } else if (type === 'SET_MOCK_DATA') {
-        const enabled = !!payload?.enabled;
-        const today = new Date();
-        const todayStr = today.toISOString().slice(0, 10);
-        const future = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
-        const dueDateStr = future.toISOString().slice(0, 10);
-
-        if (!enabled) {
-          // Cancel any reminders for mock transactions (best effort)
-          try {
-            const reminderRows = db.getAllSync("SELECT reminderId FROM transactions WHERE isMock = 1 AND reminderId IS NOT NULL AND reminderId != ''");
-            for (const r of reminderRows || []) {
-              const rid = r?.reminderId;
-              if (!rid) continue;
-              try { await Notifications.cancelScheduledNotificationAsync(String(rid)); } catch { }
-            }
-          } catch { }
-
-          db.execSync('BEGIN');
-          try {
-            db.runSync('DELETE FROM transactions WHERE isMock = 1');
-            db.runSync('DELETE FROM partners WHERE isMock = 1');
-            db.execSync('COMMIT');
-            result = { success: true, enabled: false };
-          } catch (err) {
-            try { db.execSync('ROLLBACK'); } catch { }
-            result = { success: false, error: String(err?.message || err) };
-          }
-        } else {
-          const now = Date.now();
-          db.execSync('BEGIN');
-          try {
-            // Partners (use negative IDs to avoid collisions)
-            db.runSync(
-              'INSERT OR REPLACE INTO partners (id, name, percent, createdAt, isMock) VALUES (?, ?, ?, ?, ?)',
-              [-1, 'Mock Partner A', 60, now, 1]
-            );
-            db.runSync(
-              'INSERT OR REPLACE INTO partners (id, name, percent, createdAt, isMock) VALUES (?, ?, ?, ?, ?)',
-              [-2, 'Mock Partner B', 40, now, 1]
-            );
-
-            // Transactions
-            db.runSync(
-              'INSERT OR REPLACE INTO transactions (id, type, item, amount, quantity, unitPrice, date, isCredit, clientName, paidAmount, isFullyPaid, currency, createdAt, dueDate, reminderId, isMock) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-              ['mock_tx_1', 'sale', 'Mock Sale', 250, 1, 250, todayStr, 0, '', 250, 1, 'MAD', now - 3600_000, '', null, 1]
-            );
-            db.runSync(
-              'INSERT OR REPLACE INTO transactions (id, type, item, amount, quantity, unitPrice, date, isCredit, clientName, paidAmount, isFullyPaid, currency, createdAt, dueDate, reminderId, isMock) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-              ['mock_tx_2', 'purchase', 'Mock Purchase', 120, 2, 60, todayStr, 0, '', 120, 1, 'MAD', now - 2 * 3600_000, '', null, 1]
-            );
-            db.runSync(
-              'INSERT OR REPLACE INTO transactions (id, type, item, amount, quantity, unitPrice, date, isCredit, clientName, paidAmount, isFullyPaid, currency, createdAt, dueDate, reminderId, isMock) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-              ['mock_tx_3', 'sale', 'Mock Credit', 500, 1, 500, todayStr, 1, 'Ahmed', 200, 0, 'MAD', now - 3 * 3600_000, dueDateStr, null, 1]
-            );
-
-            db.execSync('COMMIT');
-            result = { success: true, enabled: true };
-          } catch (err) {
-            try { db.execSync('ROLLBACK'); } catch { }
-            result = { success: false, error: String(err?.message || err) };
-          }
         }
       } else if (type === 'OPEN_EXTERNAL') {
         const rawUrl = payload?.url;
@@ -864,8 +1003,26 @@ export default function App() {
 
       // Note: response is injected in finally
     } catch (e) {
-      console.error(e);
-      if (!result) result = { success: false, error: String(e?.message || e) };
+      const msg = String(e?.message || e || '');
+
+      // Treat "no backup yet" as a normal condition (not a failure).
+      if (msg.includes('storage/object-not-found')) {
+        if (!result) {
+          if (type === 'CLOUD_STATUS') {
+            const u = firebaseAuth ? firebaseAuth.currentUser : null;
+            result = { success: true, user: mapUser(u), manifest: null };
+          } else if (type === 'CLOUD_RESTORE') {
+            const u = firebaseAuth ? firebaseAuth.currentUser : null;
+            result = { success: true, user: mapUser(u), snapshot: null, manifest: null };
+          } else {
+            // For any other call, still respond with an error payload but don't spam logs.
+            result = { success: false, error: msg };
+          }
+        }
+      } else {
+        console.error(e);
+        if (!result) result = { success: false, error: msg };
+      }
     } finally {
       // Always respond to avoid leaving the WebView awaiting forever.
       if (id && webViewRef.current) {
@@ -883,37 +1040,136 @@ export default function App() {
 
   const LockScreen = () => {
     if (!locked) return null;
+
+    const onDigit = (d) => {
+      const digit = String(d);
+      if (!/^[0-9]$/.test(digit)) return;
+      setLockError('');
+      setPinInput((prev) => {
+        const cur = String(prev || '');
+        if (cur.length >= 12) return cur;
+        return cur + digit;
+      });
+    };
+
+    const onBackspace = () => {
+      setLockError('');
+      setPinInput((prev) => String(prev || '').slice(0, -1));
+    };
+
+    const canUseBio = !!(biometricEnabled && biometricsAvailable);
+    const filledDots = Math.min(String(pinInput || '').length, 6);
+
     return (
-      <View style={[styles.lockWrap, { backgroundColor: isDark ? '#070b16' : '#f7f7fb' }]}
-        pointerEvents="auto">
+      <View style={[styles.lockWrap, { backgroundColor: isDark ? '#070b16' : '#f7f7fb' }]} pointerEvents="auto">
         <View style={[styles.lockCard, { backgroundColor: isDark ? '#0b1326' : '#ffffff', borderColor: isDark ? '#1b2a4a' : '#e2e8f0' }]}>
-          <Text style={[styles.lockTitle, { color: isDark ? '#e5e7eb' : '#0f172a' }]}>Locked</Text>
-          <Text style={[styles.lockSub, { color: isDark ? '#9aa4b2' : '#64748b' }]}>Enter your PIN to continue</Text>
+          <View style={styles.lockHeader}>
+            <View style={[styles.lockBadge, { backgroundColor: isDark ? '#0f1b36' : '#f1f5f9', borderColor: isDark ? '#1b2a4a' : '#e2e8f0' }]}>
+              <Text style={[styles.lockBadgeText, { color: isDark ? '#14b8a6' : '#0f766e' }]}>TIJARATI</Text>
+            </View>
+            <Text style={[styles.lockTitle, { color: isDark ? '#e5e7eb' : '#0f172a' }]}>App locked</Text>
+            <Text style={[styles.lockSub, { color: isDark ? '#9aa4b2' : '#64748b' }]}>Enter your PIN to continue</Text>
+          </View>
 
-          {(biometricEnabled && biometricsAvailable) ? (
-            <Pressable style={[styles.lockBtn, { backgroundColor: '#0f766e' }]} onPress={tryBiometricUnlock}>
-              <Text style={styles.lockBtnText}>Use fingerprint</Text>
-            </Pressable>
-          ) : null}
-
-          <TextInput
-            value={pinInput}
-            onChangeText={(v) => { setPinInput(v); setLockError(''); }}
-            placeholder="PIN"
-            placeholderTextColor={isDark ? '#9aa4b2' : '#94a3b8'}
-            keyboardType="number-pad"
-            secureTextEntry
-            maxLength={12}
-            style={[styles.lockInput, { color: isDark ? '#e5e7eb' : '#0f172a', borderColor: isDark ? '#1b2a4a' : '#e2e8f0', backgroundColor: isDark ? '#0f1b36' : '#f1f5f9' }]}
-            onSubmitEditing={unlockWithPin}
-            returnKeyType="done"
-          />
+          <View style={styles.lockDotsRow}>
+            {Array.from({ length: 6 }).map((_, i) => (
+              <View
+                // eslint-disable-next-line react/no-array-index-key
+                key={i}
+                style={[
+                  styles.lockDot,
+                  {
+                    backgroundColor:
+                      i < filledDots
+                        ? (isDark ? '#14b8a6' : '#0f766e')
+                        : (isDark ? '#0f1b36' : '#f1f5f9'),
+                    borderColor: isDark ? '#1b2a4a' : '#e2e8f0',
+                  },
+                ]}
+              />
+            ))}
+          </View>
 
           {lockError ? <Text style={styles.lockError}>{lockError}</Text> : null}
 
-          <Pressable style={[styles.lockBtn, { backgroundColor: '#14b8a6' }]} onPress={unlockWithPin}>
-            <Text style={styles.lockBtnText}>Unlock</Text>
-          </Pressable>
+          <View style={styles.lockActionsRow}>
+            {canUseBio ? (
+              <Pressable
+                style={[styles.lockActionPill, { backgroundColor: isDark ? '#0f1b36' : '#f1f5f9', borderColor: isDark ? '#1b2a4a' : '#e2e8f0' }]}
+                onPress={tryBiometricUnlock}
+              >
+                <Text style={[styles.lockActionPillText, { color: isDark ? '#e5e7eb' : '#0f172a' }]}>Use fingerprint</Text>
+              </Pressable>
+            ) : null}
+
+            <Pressable
+              style={[styles.lockActionPill, { backgroundColor: isDark ? '#0f1b36' : '#f1f5f9', borderColor: isDark ? '#1b2a4a' : '#e2e8f0' }]}
+              onPress={() => { setPinInput(''); setLockError(''); }}
+            >
+              <Text style={[styles.lockActionPillText, { color: isDark ? '#e5e7eb' : '#0f172a' }]}>Clear</Text>
+            </Pressable>
+          </View>
+
+          <View style={styles.lockKeypad}>
+            {[
+              ['1', '2', '3'],
+              ['4', '5', '6'],
+              ['7', '8', '9'],
+              ['back', '0', 'ok'],
+            ].map((row, r) => (
+              // eslint-disable-next-line react/no-array-index-key
+              <View key={r} style={styles.lockKeypadRow}>
+                {row.map((k) => {
+                  if (k === 'back') {
+                    return (
+                      <Pressable
+                        key={k}
+                        style={[styles.lockKey, { backgroundColor: isDark ? '#0f1b36' : '#f1f5f9', borderColor: isDark ? '#1b2a4a' : '#e2e8f0' }]}
+                        onPress={onBackspace}
+                        onLongPress={() => setPinInput('')}
+                      >
+                        <Text style={[styles.lockKeyAlt, { color: isDark ? '#e5e7eb' : '#0f172a' }]}>⌫</Text>
+                      </Pressable>
+                    );
+                  }
+
+                  if (k === 'ok') {
+                    return (
+                      <Pressable
+                        key={k}
+                        style={[styles.lockKey, { backgroundColor: '#14b8a6', borderColor: 'rgba(20,184,166,0.35)' }]}
+                        onPress={unlockWithPin}
+                      >
+                        <Text style={styles.lockKeyOk}>OK</Text>
+                      </Pressable>
+                    );
+                  }
+
+                  return (
+                    <Pressable
+                      key={k}
+                      style={[styles.lockKey, { backgroundColor: isDark ? '#0f1b36' : '#ffffff', borderColor: isDark ? '#1b2a4a' : '#e2e8f0' }]}
+                      onPress={() => onDigit(k)}
+                    >
+                      <Text style={[styles.lockKeyText, { color: isDark ? '#e5e7eb' : '#0f172a' }]}>{k}</Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            ))}
+          </View>
+
+          {/* Keep a hidden input to support password managers / accessibility keyboards if needed */}
+          <TextInput
+            value={pinInput}
+            onChangeText={(v) => { setPinInput(String(v || '').replace(/[^0-9]/g, '')); setLockError(''); }}
+            keyboardType="number-pad"
+            secureTextEntry
+            maxLength={12}
+            style={styles.lockHiddenInput}
+            onSubmitEditing={unlockWithPin}
+            returnKeyType="done"
+          />
         </View>
       </View>
     );
@@ -926,6 +1182,35 @@ export default function App() {
 
     // Optional hosted backend for AI (so preview/production builds work without a local server).
     window.__TIJARATI_AI_SERVER_URL__ = ${JSON.stringify(aiServerUrl)};
+
+    // Native request/response bridge (no CORS; used for direct Gemini calls, file save/share, etc).
+    window.__TIJARATI_NATIVE_REQUEST__ = function(type, payload) {
+      return new Promise((resolve) => {
+        try {
+          if (!window.ReactNativeWebView || !window.ReactNativeWebView.postMessage) {
+            resolve({ success: false, error: 'Native bridge unavailable' });
+            return;
+          }
+          const id = Date.now() + Math.random().toString();
+          const handler = (event) => {
+            let data = event && event.data;
+            try {
+              if (typeof data === 'string') data = JSON.parse(data);
+            } catch (e) {}
+            if (data && data.id === id) {
+              document.removeEventListener('message', handler);
+              window.removeEventListener('message', handler);
+              resolve(data.result);
+            }
+          };
+          document.addEventListener('message', handler);
+          window.addEventListener('message', handler);
+          window.ReactNativeWebView.postMessage(JSON.stringify({ id, type, payload }));
+        } catch (e) {
+          resolve({ success: false, error: String(e && (e.message || e) || 'Native bridge failed') });
+        }
+      });
+    };
 
     (function patchNativeImportClear() {
       function nativeRequest(type, payload) {
@@ -1030,43 +1315,109 @@ const styles = StyleSheet.create({
   lockCard: {
     width: '100%',
     maxWidth: 420,
-    borderRadius: 18,
+    borderRadius: 24,
     borderWidth: 1,
     padding: 18,
   },
+  lockHeader: {
+    alignItems: 'center',
+    paddingTop: 6,
+    paddingBottom: 10,
+  },
+  lockBadge: {
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderWidth: 1,
+    marginBottom: 10,
+  },
+  lockBadgeText: {
+    fontSize: 12,
+    fontWeight: '900',
+    letterSpacing: 1,
+  },
   lockTitle: {
-    fontSize: 20,
-    fontWeight: '800',
+    fontSize: 22,
+    fontWeight: '900',
     marginBottom: 6,
   },
   lockSub: {
     fontSize: 12,
     fontWeight: '700',
-    marginBottom: 14,
+    marginBottom: 0,
+    textAlign: 'center',
   },
-  lockInput: {
+  lockDotsRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 10,
+    paddingTop: 10,
+    paddingBottom: 6,
+  },
+  lockDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 999,
     borderWidth: 1,
-    borderRadius: 14,
+  },
+  lockActionsRow: {
+    flexDirection: 'row',
+    gap: 10,
+    justifyContent: 'center',
+    marginTop: 10,
+  },
+  lockActionPill: {
+    borderWidth: 1,
+    borderRadius: 999,
+    paddingVertical: 10,
     paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontSize: 16,
-    fontWeight: '700',
-    marginTop: 10,
-  },
-  lockBtn: {
-    borderRadius: 14,
-    paddingVertical: 12,
     alignItems: 'center',
+  },
+  lockActionPillText: {
+    fontWeight: '900',
+    fontSize: 12,
+  },
+  lockKeypad: {
+    marginTop: 14,
+  },
+  lockKeypadRow: {
+    flexDirection: 'row',
+    gap: 10,
     marginTop: 10,
   },
-  lockBtnText: {
-    color: 'white',
-    fontWeight: '800',
+  lockKey: {
+    flex: 1,
+    height: 52,
+    borderRadius: 16,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  lockKeyText: {
+    fontSize: 18,
+    fontWeight: '900',
+  },
+  lockKeyAlt: {
+    fontSize: 18,
+    fontWeight: '900',
+  },
+  lockKeyOk: {
+    fontSize: 14,
+    fontWeight: '900',
+    color: '#ffffff',
+    letterSpacing: 0.5,
+  },
+  lockHiddenInput: {
+    position: 'absolute',
+    opacity: 0,
+    height: 0,
+    width: 0,
   },
   lockError: {
     color: '#ef4444',
     fontWeight: '800',
     marginTop: 8,
     fontSize: 12,
+    textAlign: 'center',
   },
 });
