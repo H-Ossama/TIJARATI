@@ -1,170 +1,120 @@
-# Tijarati
+<p align="center">
+  <img src="mobile/assets/logo.png" width="150" alt="Tijarati Logo">
+</p>
 
-Tijarati is a small bookkeeping app (sales, purchases, debts/credit book, reminders, partners profit split) with a modern Web UI that is packaged inside a React Native (Expo) shell via `WebView`.
+<h1 align="center">Tijarati (تجارتي)</h1>
 
-## Repo layout
+<p align="center">
+  <strong>A premium, modern bookkeeping solution for small businesses and merchants.</strong>
+</p>
 
-- `index.html` — **canonical Web UI** (used by mobile bundle and by the Node web server).
-- `bundler.js` — bundles `index.html` into the mobile asset.
-- `mobile/` — Expo React Native wrapper app (SQLite persistence, notifications, file/share bridge).
-- `public/` — (removed) legacy web UI.
-- `server/` — Node.js server (serves the canonical UI at `/`).
-- `backend/` — older server prototype (not used by the canonical UI).
+---
 
-## Development
+## 🌟 Overview
 
-### 1) Build the mobile Web UI bundle
+**Tijarati** is a comprehensive bookkeeping application designed with a focus on speed, aesthetics, and ease of use. It bridges the gap between a powerful web interface and a seamless mobile experience using a React Native (Expo) wrapper. Whether you're tracking sales, managing stock, or splitting profits with partners, Tijarati provides all the tools you need in one elegant package.
 
-The mobile app loads a generated bundle at `mobile/assets/frontend_bundle.js`.
+## ✨ Key Features
 
-From repo root:
+- 💰 **Transaction Management**: Effortlessly record sales, purchases, and expenses.
+- 📉 **Real-time Analytics**: Stay informed with net profit tracking and recent activity summaries.
+- 🤝 **Partner Profit Split**: Manage multiple partners and automatically calculate profit allocations.
+- 📦 **Stock Management**: Keep track of your inventory levels with smart alerts for low stock.
+- 📖 **Debt Book**: A dedicated digital ledger to track who owes you and who you owe, with built-in installment tracking.
+- 🌓 **Adaptive UI**: Beautifully crafted Light and Dark modes with glassmorphism effects.
+- 🌍 **Multi-language Support**: Fully localized in **Darija, Arabic, French, and English**.
+- 🤖 **AI Assistant**: Integrated AI (Gemini) to help you analyze your business data.
+- ☁️ **Cloud Sync & Backup**: Securely backup your data to Firebase and sync across devices.
 
+## 📸 Screenshots
+
+### Dashboard & Analytics
+<p align="center">
+  <img src="screenshots/dashboard_light.jpg" width="45%" alt="Dashboard Light">
+  <img src="screenshots/dashboard_dark.jpg" width="45%" alt="Dashboard Dark">
+</p>
+
+### Operations & Management
+<p align="center">
+  <img src="screenshots/transactions_history.jpg" width="30%" alt="History">
+  <img src="screenshots/debt_book.jpg" width="30%" alt="Debt Book">
+  <img src="screenshots/stock_management.jpg" width="30%" alt="Stock">
+</p>
+
+### Advanced Features & Settings
+<p align="center">
+  <img src="screenshots/profit_sharing.jpg" width="30%" alt="Profit Sharing">
+  <img src="screenshots/debt_details.jpg" width="30%" alt="Debt Details">
+  <img src="screenshots/transaction_details.jpg" width="30%" alt="Receipts">
+</p>
+<p align="center">
+  <img src="screenshots/arabic_localization.jpg" width="45%" alt="Localization">
+  <img src="screenshots/settings.jpg" width="45%" alt="Settings">
+</p>
+
+
+---
+
+## 🛠️ Tech Stack
+
+- **Frontend**: Canonical Web UI (HTML/JS/CSS) with modern glassmorphism design.
+- **Mobile**: React Native & Expo `WebView` shell.
+- **Database**: Local SQLite (mobile) and Firebase for cloud backups.
+- **Backend**: Node.js server (Firebase Functions).
+- **AI**: Google Gemini API integration.
+
+## 📁 Repository Structure
+
+- `index.html` — The core Web UI (used by both mobile and web server).
+- `mobile/` — Expo React Native application.
+- `server/` — Node.js backend for AI endpoints and hosting.
+- `screenshots/` — Project visual assets.
+- `bundler.js` — Utility script to bundle the UI for mobile deployment.
+
+---
+
+## 🚀 Getting Started
+
+### 1. Build the Mobile Bundle
+The mobile app loads a generated bundle from the assets directory.
 ```bash
 node bundler.js
 ```
 
-### 1b) Run the web server (canonical UI)
-
+### 2. Run the Web Server (Optional)
+To use the UI in a browser or serve the AI API:
 ```bash
 cd server
 npm install
 node server.js
 ```
 
-If the AI status shows "AI endpoint missing", you are likely running the legacy server in `backend/`. Use the `server/` command above (it serves `/api/ai/status` and `/api/ai`).
-
-### 2) Run the mobile app (Expo)
-
+### 3. Launch the Mobile App
+Ensure you have the Expo Go app installed or an emulator ready.
 ```bash
 cd mobile
 npm install
 npx expo start
 ```
 
-## AI in Mobile builds (no local server)
+---
 
-The mobile app bundles the UI inside a WebView (`file://`). To use real AI (Gemini) **without running a local server**, you must provide a hosted backend URL.
+## 🌐 AI Integration
 
-- Deploy the Node server in `server/` to a public URL (Render/Fly/Cloud Run/etc).
-- Set `TIJARATI_AI_SERVER_URL` for EAS builds (Preview + Production) to that URL.
+Tijarati uses Gemini for intelligent business insights. You can configure it in two ways:
+1. **Hosted Backend**: Deploy the `server/` directory and set `TIJARATI_AI_SERVER_URL`.
+2. **Native Direct**: Set `TIJARATI_GEMINI_API_KEY` in your EAS build environment for direct native calls.
 
-Example:
+---
 
-- `TIJARATI_AI_SERVER_URL=https://your-tijarati-server.example.com`
+## 🌍 Localization
 
-The app will automatically call:
+Tijarati is designed for the North African and Global market.
+- **Languages**: 🇲🇦 Darija, 🇸🇦 Arabic, 🇫🇷 French, 🇬🇧 English.
+- **Currency Support**: MAD, EUR, USD with auto-conversion capabilities.
 
-- `${TIJARATI_AI_SERVER_URL}/api/ai/status`
-- `${TIJARATI_AI_SERVER_URL}/api/ai`
+---
 
-If the URL is not set or is unreachable, the app falls back to the built-in local assistant.
-
-### Option B: No backend (direct Gemini from the app)
-
-The app can call Gemini directly from the native layer (no server, no CORS issues). This works in EAS builds.
-
-Important security note: shipping an API key inside a client app is **not secure** (it can be extracted). If you need a “perfect” production setup, prefer the backend approach.
-
-To enable direct Gemini:
-
-- Set `TIJARATI_GEMINI_API_KEY` (and optionally `TIJARATI_GEMINI_MODEL`, default `gemini-2.5-flash`) in EAS build env.
-
-When `TIJARATI_AI_SERVER_URL` is not set, the app will:
-
-- Use native Gemini if the key is configured
-- Otherwise fall back to the built-in local assistant
-
-## Deploy the server with Firebase (Hosting + Functions)
-
-Yes — you can deploy the API using Firebase.
-
-This repo is set up so Firebase Functions uses the code in `server/` (see `firebase.json`). Hosting rewrites `/api/*` to the `api` function.
-
-### Steps
-
-1) Install Firebase CLI and login:
-
-```bash
-npm i -g firebase-tools
-firebase login
-```
-
-2) In the repo root, initialize Firebase (choose **Hosting** + **Functions**). When asked for Functions source, use the existing config (it is already set in `firebase.json`).
-
-3) Set your Gemini key securely (recommended):
-
-```bash
-firebase functions:secrets:set GEMINI_API_KEY
-```
-
-4) Deploy:
-
-```bash
-firebase deploy
-```
-
-Or use the Windows script (recommended):
-
-- `powershell -ExecutionPolicy Bypass -File .\deploy_firebase.ps1 -SetGeminiKey`
-
-Or double-click / run the batch wrapper:
-
-- `deploy_firebase.bat -SetGeminiKey`
-
-Note: Deploying Firebase Functions typically requires upgrading the Firebase project to the **Blaze** plan (billing enabled). If you only want to deploy Hosting (no API), run:
-
-- `powershell -ExecutionPolicy Bypass -File .\deploy_firebase.ps1 -HostingOnly`
-
-### Project + region (this repo)
-
-- Firebase project: `tijarati-ec23b` (see `.firebaserc`)
-- Functions region: `europe-west1`
-
-### Use it in EAS builds
-
-Set the mobile env var to your Hosting URL:
-
-- `TIJARATI_AI_SERVER_URL=https://tijarati-ec23b.web.app`
-
-The app will call:
-
-- `https://<your-project>.web.app/api/ai/status`
-- `https://<your-project>.web.app/api/ai`
-
-Notes:
-
-- Debt reminders and “Download/Share” are handled through the native bridge in `mobile/App.js`.
-- SQLite database file is stored on-device (`tijarati.db`).
-
-## Firebase / Cloud backup
-
-The canonical UI (`index.html`) includes Firebase Auth + Storage for cloud backup/restore.
-
-### Web config (required)
-
-For Firebase Auth/Storage to work reliably, create a **Web App** in Firebase Console and copy the config snippet.
-
-- Update the `FIREBASE_CONFIG` object inside `index.html` with the exact values Firebase gives you (especially `apiKey`, `authDomain`, and `appId`).
-
-### Android config (package name must match)
-
-Firebase Android builds require the package name in `mobile/android/app/build.gradle` to match the one inside `mobile/android/app/google-services.json`.
-
-Right now the Android app is configured as `com.tijarati`, but the downloaded `google-services.json` targets `com.H_Oussama.tijarati`.
-
-Fix options:
-
-- Recommended: in Firebase Console, create/add an Android app with package **`com.tijarati`**, then download a new `google-services.json` and replace `mobile/android/app/google-services.json`.
-- Alternative: change the Android app package (Expo `mobile/app.json` + native Android sources) to match `com.H_Oussama.tijarati`.
-
-## Scripts
-
-- `start_app.bat` — helper script to start (Windows).
-
-## Languages
-
-UI supports Darija, Arabic, French, and English. Translations live in `index.html` (the `translations` object).
-
-## GitHub hygiene
-
-This repo includes a root `.gitignore` to avoid committing build outputs (`**/build/`), `node_modules/`, and local env files.
+<p align="center">
+  Developed with ❤️ for merchants everywhere.
+</p>

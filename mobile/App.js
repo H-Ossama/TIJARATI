@@ -1183,36 +1183,40 @@ Guidelines:
     // Optional hosted backend for AI (so preview/production builds work without a local server).
     window.__TIJARATI_AI_SERVER_URL__ = ${JSON.stringify(aiServerUrl)};
 
-    // Native request/response bridge (no CORS; used for direct Gemini calls, file save/share, etc).
-    window.__TIJARATI_NATIVE_REQUEST__ = function(type, payload) {
-      return new Promise((resolve) => {
-        try {
-          if (!window.ReactNativeWebView || !window.ReactNativeWebView.postMessage) {
-            resolve({ success: false, error: 'Native bridge unavailable' });
-            return;
-          }
-          const id = Date.now() + Math.random().toString();
-          const handler = (event) => {
-            let data = event && event.data;
-            try {
-              if (typeof data === 'string') data = JSON.parse(data);
-            } catch (e) {}
-            if (data && data.id === id) {
-              document.removeEventListener('message', handler);
-              window.removeEventListener('message', handler);
-              resolve(data.result);
-            }
-          };
-          document.addEventListener('message', handler);
-          window.addEventListener('message', handler);
-          window.ReactNativeWebView.postMessage(JSON.stringify({ id, type, payload }));
-        } catch (e) {
-          resolve({ success: false, error: String(e && (e.message || e) || 'Native bridge failed') });
-        }
-      });
-    };
+    // Bootstrap only once per page load to avoid stacking timers/listeners if we reinject.
+    if (!window.__TIJARATI_NATIVE_BOOTSTRAPPED__) {
+      window.__TIJARATI_NATIVE_BOOTSTRAPPED__ = true;
 
-    (function patchNativeImportClear() {
+      // Native request/response bridge (no CORS; used for direct Gemini calls, file save/share, etc).
+      window.__TIJARATI_NATIVE_REQUEST__ = function(type, payload) {
+        return new Promise((resolve) => {
+          try {
+            if (!window.ReactNativeWebView || !window.ReactNativeWebView.postMessage) {
+              resolve({ success: false, error: 'Native bridge unavailable' });
+              return;
+            }
+            const id = Date.now() + Math.random().toString();
+            const handler = (event) => {
+              let data = event && event.data;
+              try {
+                if (typeof data === 'string') data = JSON.parse(data);
+              } catch (e) {}
+              if (data && data.id === id) {
+                document.removeEventListener('message', handler);
+                window.removeEventListener('message', handler);
+                resolve(data.result);
+              }
+            };
+            document.addEventListener('message', handler);
+            window.addEventListener('message', handler);
+            window.ReactNativeWebView.postMessage(JSON.stringify({ id, type, payload }));
+          } catch (e) {
+            resolve({ success: false, error: String(e && (e.message || e) || 'Native bridge failed') });
+          }
+        });
+      };
+
+      (function patchNativeImportClear() {
       function nativeRequest(type, payload) {
         return new Promise((resolve) => {
           const id = Date.now() + Math.random().toString();
@@ -1272,7 +1276,8 @@ Guidelines:
         }
         if (attempts > 200) clearInterval(timer);
       }, 50);
-    })();
+      })();
+    }
 
     true;
   `;
@@ -1289,6 +1294,14 @@ Guidelines:
             javaScriptEnabled={true}
             onMessage={handleMessage}
             injectedJavaScriptBeforeContentLoaded={initialJS}
+            injectedJavaScript={initialJS}
+            onLoadEnd={() => {
+              try {
+                if (webViewRef.current && typeof webViewRef.current.injectJavaScript === 'function') {
+                  webViewRef.current.injectJavaScript(initialJS);
+                }
+              } catch { }
+            }}
             onError={(e) => console.warn('WebView Error', e.nativeEvent)}
           />
           <LockScreen />
