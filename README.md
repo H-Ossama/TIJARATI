@@ -48,7 +48,6 @@
   <img src="screenshots/transaction_details.jpg" width="30%" alt="Receipts">
 </p>
 <p align="center">
-  <img src="screenshots/arabic_localization.jpg" width="45%" alt="Localization">
   <img src="screenshots/settings.jpg" width="45%" alt="Settings">
 </p>
 
