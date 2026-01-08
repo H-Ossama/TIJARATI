@@ -41,12 +41,14 @@
   <img src="screenshots/stock_management.jpg" width="30%" alt="Stock">
 </p>
 
-### Advanced Features & Settings
+### Advanced Features
 <p align="center">
   <img src="screenshots/profit_sharing.jpg" width="30%" alt="Profit Sharing">
   <img src="screenshots/debt_details.jpg" width="30%" alt="Debt Details">
   <img src="screenshots/transaction_details.jpg" width="30%" alt="Receipts">
 </p>
+
+### Settings
 <p align="center">
   <img src="screenshots/settings.jpg" width="45%" alt="Settings">
 </p>
